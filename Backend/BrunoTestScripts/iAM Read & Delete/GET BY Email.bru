@@ -1,0 +1,44 @@
+meta {
+  name: GET BY Email
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{AUDIENCE}}users?q={{encodedEmail}}&search_engine=v3
+  body: none
+  auth: bearer
+}
+
+params:query {
+  q: {{encodedEmail}}
+  search_engine: v3
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+script:pre-request {
+  let encodedEmail = encodeURIComponent(bru.getEnvVar("ENCODED_EMAIL"));
+  bru.setVar("encodedEmail", encodedEmail);
+}
+
+script:post-response {
+  const body = res.getBody();
+  
+  if (body && body[0] && body[0].user_id) {
+  
+    const fullUserId = body[0].user_id;
+    const userIdAlpha = fullUserId.split('|')[1];
+  
+    bru.setEnvVar("USER_ID", fullUserId);
+    bru.setEnvVar("USER_ID_ALPHA", userIdAlpha);
+  
+  } else {
+  
+    bru.setEnvVar("USER_ID", "not-found");
+    bru.setEnvVar("USER_ID_ALPHA", "not-found");
+  
+  }
+}

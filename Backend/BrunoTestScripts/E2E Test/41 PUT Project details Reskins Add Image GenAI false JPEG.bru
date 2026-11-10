@@ -1,0 +1,59 @@
+meta {
+  name: 41 PUT Project details Reskins Add Image GenAI false JPEG
+  type: http
+  seq: 41
+}
+
+put {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{NEWPROJECTID}}/Reskins/images?projectId={{NEWPROJECTID}}&StyleId={123CB8A2-FD71-41E6-8584-B1BCF328DEDE}&enableImageGeneration=false
+  body: multipartForm
+  auth: inherit
+}
+
+params:query {
+  projectId: {{NEWPROJECTID}}
+  StyleId: {123CB8A2-FD71-41E6-8584-B1BCF328DEDE}
+  enableImageGeneration: false
+}
+
+body:multipart-form {
+  : 
+  image: @file(kitchenJPEG.jpg)
+}
+
+tests {
+  const body = res.getBody();
+  
+  // ---------------- Status Code ----------------
+  
+  test("Status code is 201", () => {
+      expect(res.getStatus()).to.equal(201);
+  });
+  
+  // ---------------- Field Existence Tests ----------------
+  
+  test("id exists", () => {
+      expect(body.id).to.exist;
+  });
+  
+  test("projectId exists", () => {
+      expect(body.projectId).to.exist;
+  });
+  
+  test("styleId exists", () => {
+      expect(body.styleId).to.exist;
+  });
+  
+  test("styleName exists", () => {
+      expect(body.styleName).to.exist;
+  });
+  
+  test("sourceImageUrl exists", () => {
+      expect(body.sourceImageUrl).to.exist;
+  });
+  
+  test("outputImageUrl exists", () => {
+      expect(body.outputImageUrl).to.exist;
+  });
+  
+}

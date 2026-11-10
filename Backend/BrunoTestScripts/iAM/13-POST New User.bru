@@ -1,0 +1,63 @@
+meta {
+  name: 13-POST New User
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{BASEURL}}/user/
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+body:json {
+  {
+    "id": "{{NEWPROJECTID}}",
+    "email": "soumabha.bhandari.mbd01+{{unique_suffix}}@gmail.com",
+    "emailVerified": true,
+    "firstName": "S",
+    "lastName": "dev2503202601",
+    "displayName": "S D",
+    "avatar": "",
+    "postalCode": "28246",
+    "phoneNumber": "999999999",
+    "country": "string",
+    "projectId": "{{NEWPROJECTID}}",
+    "emailCampaign": true,
+    "externalId": "",
+    "status": ""
+  }
+}
+
+script:pre-request {
+  const now = new Date();
+  
+  const DD  = String(now.getDate()).padStart(2, '0');
+  const mm  = String(now.getMonth() + 1).padStart(2, '0');
+  const YY  = String(now.getFullYear()).slice(-2);
+  const HH  = String(now.getHours()).padStart(2, '0');
+  const MM  = String(now.getMinutes()).padStart(2, '0');
+  const SSS = String(now.getMilliseconds()).padStart(3, '0');
+  
+  const timestamp = `${DD}${mm}${YY}${HH}${MM}${SSS}`;
+  
+  const env = bru.getEnvVar("ENV_PREFIX"); // "DEV" or "UAT"
+  const prefix = env ? env.toLowerCase() : "dev";
+  
+  const uniqueSuffix = `${prefix}${timestamp}`;
+  
+  bru.setVar("unique_suffix", uniqueSuffix);
+}
+
+tests {
+  bru.setEnvVar("userID", res.getBody().id)
+  
+}

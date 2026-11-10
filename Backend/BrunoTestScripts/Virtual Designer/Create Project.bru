@@ -1,0 +1,30 @@
+meta {
+  name: Create Project
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BaseURL}}/projectprofile/v1/projects/
+  body: none
+  auth: inherit
+}
+
+tests {
+  const body = res.getBody();
+  
+  // ---------------- Status code test ----------------
+  test("POST Create Project - Status code is 201", () => {
+      expect(res.getStatus()).to.equal(201);
+  });
+  
+  // ---------------- Field existence tests ----------------
+  test("POST Create Project - id exists and matches feedback.projectId", () => {
+      expect(body.id).to.exist;
+      expect(body.id).to.not.be.null;
+      expect(body.id).to.equal(body.feedback.projectId);
+  });
+  
+  
+  bru.setEnvVar("NEWPROJECTID", res.getBody().id)
+}

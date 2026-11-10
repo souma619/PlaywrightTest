@@ -1,0 +1,18 @@
+meta {
+  name: CREATE Project
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BaseURL}}/projectprofile/v1/projects/
+  body: none
+  auth: inherit
+}
+
+tests {
+  bru.setEnvVar("NEWPROJECTID", res.getBody().id)
+  test("Status is 201", () => {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

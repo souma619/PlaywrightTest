@@ -1,0 +1,56 @@
+meta {
+  name: 36 GET Project details Reskins
+  type: http
+  seq: 36
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{NEWPROJECTID}}/Reskins
+  body: json
+  auth: inherit
+}
+
+tests {
+  var jsonData =res.getBody();
+  bru.setEnvVar("RESKINID", jsonData[0].id);
+  
+  const body = res.getBody();
+  
+  // ---------------- Status Code ----------------
+  test("Status code is 200", () => {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // ---------------- First element existence ----------------
+  test("Response array is not empty", () => {
+      expect(body.length).to.be.greaterThan(0);
+  });
+  
+  const first = body[0];
+  
+  // ---------------- Field existence tests for first item ----------------
+  test("first.id exists", () => {
+      expect(first.id).to.exist;
+  });
+  
+  test("first.projectId exists", () => {
+      expect(first.projectId).to.exist;
+  });
+  
+  test("first.styleId exists", () => {
+      expect(first.styleId).to.exist;
+  });
+  
+  test("first.styleName exists", () => {
+      expect(first.styleName).to.exist;
+  });
+  
+  test("first.sourceImageUrl exists", () => {
+      expect(first.sourceImageUrl).to.exist;
+  });
+  
+  test("first.outputImageUrl exists", () => {
+      expect(first.outputImageUrl).to.exist;
+  });
+  
+}

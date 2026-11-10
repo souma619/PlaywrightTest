@@ -1,0 +1,34 @@
+meta {
+  name: 39 POST Project details Reskins Add Image GenAI true PNG
+  type: http
+  seq: 39
+}
+
+post {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{NEWPROJECTID}}/Reskins?projectId={{NEWPROJECTID}}&styleId={123CB8A2-FD71-41E6-8584-B1BCF328DEDE}&enableImageGeneration=false
+  body: multipartForm
+  auth: inherit
+}
+
+params:query {
+  projectId: {{NEWPROJECTID}}
+  styleId: {123CB8A2-FD71-41E6-8584-B1BCF328DEDE}
+  enableImageGeneration: false
+}
+
+tests {
+  const body = res.getBody();
+  
+  // ---------------- Status Code ----------------
+  test("Status code is 400", () => {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // ---------------- Body contains message ----------------
+  test("Response body contains max count message", () => {
+      // Convert body to string in case it's not plain text
+      const bodyText = typeof body === "string" ? body : JSON.stringify(body);
+      expect(bodyText).to.contain("The maximum allowed count of rendered output images is: 3.");
+  });
+  
+}

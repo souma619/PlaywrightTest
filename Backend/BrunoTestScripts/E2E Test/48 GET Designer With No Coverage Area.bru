@@ -1,0 +1,91 @@
+meta {
+  name: 48 GET Designer With No Coverage Area
+  type: http
+  seq: 47
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/ChannelDiscovery?projectId={{NEWPROJECTID}}&postalCode={{ZIP_CODE}}
+  body: json
+  auth: inherit
+}
+
+params:query {
+  projectId: {{NEWPROJECTID}}
+  postalCode: {{ZIP_CODE}}
+}
+
+script:pre-request {
+  // Get ZIP codes from environment variable
+  const zipCodesStr = bru.getEnvVar("zipCodes");
+  
+  // Fallback: if not in env, define inline
+  const zipCodes = zipCodesStr ? JSON.parse(zipCodesStr) : [
+    // Original Map area ZIP codes
+  "20670", "32212", "93524", "32544", "80914", "92135", "22134", "42223", "76544", "79916", "999", "96850"]
+  
+  
+  const currentRun = bru.getVar("runCountNoCov") || 0;
+  
+  if (currentRun < zipCodes.length) {
+      bru.setVar("ZIP_CODE", zipCodes[currentRun]);
+      console.log(`✓ Using ZIP Code: ${zipCodes[currentRun]} (Run ${currentRun + 1}/${zipCodes.length})`);
+  } else {
+      console.log("✅ All ZIP codes completed!");
+  }
+}
+
+script:post-response {
+  // Array of ZIP codes (same as Pre-Request)
+  const zipCodes = [
+    // Original Map area ZIP codes
+  "20670", "32212", "93524", "32544", "80914", "92135", "22134", "42223", "76544", "79916", "999", "96850"];
+  
+  // Get current run number
+  const currentRun = bru.getVar("runCountNoCov") || 0;
+  const nextRun = currentRun + 1;
+  
+  // Update run counter
+  bru.setVar("runCountNoCov", nextRun);
+  
+  // Check if more iterations needed
+  if (nextRun < zipCodes.length) {
+      console.log(`→ Triggering iteration ${nextRun + 1}/${zipCodes.length}...`);
+      
+      // Trigger next request after a small delay
+      setTimeout(() => {
+          bru.runRequest("48 GET Designer With No Coverage Area");
+      }, 2500);
+  } else {
+      console.log("🎉 All iterations completed!");
+      bru.setVar("runCountNoCov", 0); // Reset counter
+  }
+}
+
+tests {
+  const requestedZip = bru.getVar("ZIP_CODE");
+  const currentRun = bru.getVar("runCountNoCov") || 0;
+  
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`🧪 TESTING ZIP CODE: ${requestedZip} (Run ${currentRun + 1}/283)`);
+  console.log(`${"=".repeat(60)}\n`);
+  
+  const body = res.getBody();
+  
+  // Test 1: Status Code
+  test("Status code is 200", () => {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Test 2: Response is an array & empty
+  test("Response should be an array & empty", () => {
+      expect(body).to.be.an("array");
+      expect(body.length).to.equal(1);
+  
+      const dealer = body[0];
+  
+      expect(dealer.channelType).to.equal("UNSUPPORTED");
+  });
+  
+  
+}

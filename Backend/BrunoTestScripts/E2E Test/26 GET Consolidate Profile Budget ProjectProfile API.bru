@@ -1,0 +1,375 @@
+meta {
+  name: 26 GET Consolidate Profile Budget ProjectProfile API
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{PROJECTID}}/Profiles/budget-experience?zipCode=11716
+  body: json
+  auth: none
+}
+
+params:query {
+  zipCode: 11716
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("GET Budget Breakdown API should return 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  // =======================
+  // Top-level fields
+  // =======================
+  test("Skipped should be false", () => {
+    expect(res.body.skipped).to.equal(false);
+  });
+  
+  test("Kitchen size should be present", () => {
+    expect(res.body.kitchenSize).to.not.be.empty;
+  });
+  
+  // =======================
+  // Cabinets and Storage
+  // =======================
+  test("Cabinets and Storage should be included", () => {
+    expect(res.body.cabinetsAndStorage.included).to.equal(true);
+  });
+  
+  test("Cabinets and Storage tier should be Premium", () => {
+    expect(res.body.cabinetsAndStorage.tier).to.equal("Premium");
+  });
+  
+  test("Cabinets and Storage minimum should not be 0 or null", () => {
+    expect(res.body.cabinetsAndStorage.minimum).to.not.equal(0);
+    expect(res.body.cabinetsAndStorage.minimum).to.not.be.null;
+  });
+  
+  test("Cabinets and Storage maximum should not be 0 or null", () => {
+    expect(res.body.cabinetsAndStorage.maximum).to.not.equal(0);
+    expect(res.body.cabinetsAndStorage.maximum).to.not.be.null;
+  });
+  
+  // =======================
+  // Countertops
+  // =======================
+  test("Countertops should be included", () => {
+    expect(res.body.countertops.included).to.equal(true);
+  });
+  
+  test("Countertops tier should be Premium", () => {
+    expect(res.body.countertops.tier).to.equal("Premium");
+  });
+  
+  test("Countertops minimum should not be 0 or null", () => {
+    expect(res.body.countertops.minimum).to.not.equal(0);
+    expect(res.body.countertops.minimum).to.not.be.null;
+  });
+  
+  test("Countertops maximum should not be 0 or null", () => {
+    expect(res.body.countertops.maximum).to.not.equal(0);
+    expect(res.body.countertops.maximum).to.not.be.null;
+  });
+  
+  // =======================
+  // Appliances
+  // =======================
+  test("Appliances should be included", () => {
+    expect(res.body.appliances.included).to.equal(true);
+  });
+  
+  test("Appliances tier should be Premium", () => {
+    expect(res.body.appliances.tier).to.equal("Premium");
+  });
+  
+  test("Appliances minimum should not be 0 or null", () => {
+    expect(res.body.appliances.minimum).to.not.equal(0);
+    expect(res.body.appliances.minimum).to.not.be.null;
+  });
+  
+  test("Appliances maximum should not be 0 or null", () => {
+    expect(res.body.appliances.maximum).to.not.equal(0);
+    expect(res.body.appliances.maximum).to.not.be.null;
+  });
+  
+  // =======================
+  // Plumbing and Fixtures
+  // =======================
+  test("Plumbing and Fixtures should be included", () => {
+    expect(res.body.plumbingAndFixtures.included).to.equal(true);
+  });
+  
+  test("Plumbing and Fixtures tier should be Premium", () => {
+    expect(res.body.plumbingAndFixtures.tier).to.equal("Premium");
+  });
+  
+  test("Plumbing and Fixtures minimum should not be 0 or null", () => {
+    expect(res.body.plumbingAndFixtures.minimum).to.not.equal(0);
+    expect(res.body.plumbingAndFixtures.minimum).to.not.be.null;
+  });
+  
+  test("Plumbing and Fixtures maximum should not be 0 or null", () => {
+    expect(res.body.plumbingAndFixtures.maximum).to.not.equal(0);
+    expect(res.body.plumbingAndFixtures.maximum).to.not.be.null;
+  });
+  
+  // =======================
+  // Flooring
+  // =======================
+  test("Flooring should be included", () => {
+    expect(res.body.flooring.included).to.equal(true);
+  });
+  
+  test("Flooring tier should be Premium", () => {
+    expect(res.body.flooring.tier).to.equal("Premium");
+  });
+  
+  test("Flooring minimum should not be 0 or null", () => {
+    expect(res.body.flooring.minimum).to.not.equal(0);
+    expect(res.body.flooring.minimum).to.not.be.null;
+  });
+  
+  test("Flooring maximum should not be 0 or null", () => {
+    expect(res.body.flooring.maximum).to.not.equal(0);
+    expect(res.body.flooring.maximum).to.not.be.null;
+  });
+  
+  // =======================
+  // Lighting
+  // =======================
+  test("Lighting should be included", () => {
+    expect(res.body.lighting.included).to.equal(true);
+  });
+  
+  test("Lighting tier should be Premium", () => {
+    expect(res.body.lighting.tier).to.equal("Premium");
+  });
+  
+  test("Lighting minimum should not be 0 or null", () => {
+    expect(res.body.lighting.minimum).to.not.equal(0);
+    expect(res.body.lighting.minimum).to.not.be.null;
+  });
+  
+  test("Lighting maximum should not be 0 or null", () => {
+    expect(res.body.lighting.maximum).to.not.equal(0);
+    expect(res.body.lighting.maximum).to.not.be.null;
+  });
+  
+  // =======================
+  // Labor
+  // =======================
+  test("Labor should be included", () => {
+    expect(res.body.labor.included).to.equal(true);
+  });
+  
+  test("Labor tier should be Estimated", () => {
+    expect(res.body.labor.tier).to.equal("Estimated");
+  });
+  
+  test("Labor minimum should not be 0 or null", () => {
+    expect(res.body.labor.minimum).to.not.equal(0);
+    expect(res.body.labor.minimum).to.not.be.null;
+  });
+  
+  test("Labor maximum should not be 0 or null", () => {
+    expect(res.body.labor.maximum).to.not.equal(0);
+    expect(res.body.labor.maximum).to.not.be.null;
+  });
+  
+  // =======================
+  // Total
+  // =======================
+  test("Total minimum should not be 0 or null", () => {
+    expect(res.body.total.minimum).to.not.equal(0);
+    expect(res.body.total.minimum).to.not.be.null;
+  });
+  
+  test("Total maximum should not be 0 or null", () => {
+    expect(res.body.total.maximum).to.not.equal(0);
+    expect(res.body.total.maximum).to.not.be.null;
+  });
+  
+  // =======================
+  // Backup Fund
+  // =======================
+  test("Backup fund percentage should be 20", () => {
+    expect(res.body.backupFund.percentage).to.equal(20);
+  });
+  
+  test("Backup fund minimum should not be 0 or null", () => {
+    expect(res.body.backupFund.minimum).to.not.equal(0);
+    expect(res.body.backupFund.minimum).to.not.be.null;
+  });
+  
+  test("Backup fund maximum should not be 0 or null", () => {
+    expect(res.body.backupFund.maximum).to.not.equal(0);
+    expect(res.body.backupFund.maximum).to.not.be.null;
+  });
+  
+  // =======================
+  // Cabinets Plus Storage
+  // =======================
+  test("Cabinets Plus Storage should be included", () => {
+    expect(res.body.cabinetsPlusStorage.included).to.equal(true);
+  });
+  
+  test("Cabinets Plus Storage tier should be Premium", () => {
+    expect(res.body.cabinetsPlusStorage.tier).to.equal("Premium");
+  });
+  
+  test("Cabinets Plus Storage minimum should not be 0 or null", () => {
+    expect(res.body.cabinetsPlusStorage.minimum).to.not.equal(0);
+    expect(res.body.cabinetsPlusStorage.minimum).to.not.be.null;
+  });
+  
+  test("Cabinets Plus Storage maximum should not be 0 or null", () => {
+    expect(res.body.cabinetsPlusStorage.maximum).to.not.equal(0);
+    expect(res.body.cabinetsPlusStorage.maximum).to.not.be.null;
+  });
+  
+  // =======================
+  // Cabinets and Storage
+  // =======================
+  test("Cabinets and Storage min/max should be valid", () => {
+    const min = res.body.cabinetsAndStorage.minimum;
+    const max = res.body.cabinetsAndStorage.maximum;
+  
+    expect(min).to.not.equal(0);
+    expect(min).to.not.be.null;
+    expect(max).to.not.equal(0);
+    expect(max).to.not.be.null;
+    expect(max).to.be.greaterThan(min);
+  });
+  
+  // =======================
+  // Countertops
+  // =======================
+  test("Countertops min/max should be valid", () => {
+    const min = res.body.countertops.minimum;
+    const max = res.body.countertops.maximum;
+  
+    expect(min).to.not.equal(0);
+    expect(min).to.not.be.null;
+    expect(max).to.not.equal(0);
+    expect(max).to.not.be.null;
+    expect(max).to.be.greaterThan(min);
+  });
+  
+  // =======================
+  // Appliances
+  // =======================
+  test("Appliances min/max should be valid", () => {
+    const min = res.body.appliances.minimum;
+    const max = res.body.appliances.maximum;
+  
+    expect(min).to.not.equal(0);
+    expect(min).to.not.be.null;
+    expect(max).to.not.equal(0);
+    expect(max).to.not.be.null;
+    expect(max).to.be.greaterThan(min);
+  });
+  
+  // =======================
+  // Plumbing and Fixtures
+  // =======================
+  test("Plumbing and Fixtures min/max should be valid", () => {
+    const min = res.body.plumbingAndFixtures.minimum;
+    const max = res.body.plumbingAndFixtures.maximum;
+  
+    expect(min).to.not.equal(0);
+    expect(min).to.not.be.null;
+    expect(max).to.not.equal(0);
+    expect(max).to.not.be.null;
+    expect(max).to.be.greaterThan(min);
+  });
+  
+  // =======================
+  // Flooring
+  // =======================
+  test("Flooring min/max should be valid", () => {
+    const min = res.body.flooring.minimum;
+    const max = res.body.flooring.maximum;
+  
+    expect(min).to.not.equal(0);
+    expect(min).to.not.be.null;
+    expect(max).to.not.equal(0);
+    expect(max).to.not.be.null;
+    expect(max).to.be.greaterThan(min);
+  });
+  
+  // =======================
+  // Lighting
+  // =======================
+  test("Lighting min/max should be valid", () => {
+    const min = res.body.lighting.minimum;
+    const max = res.body.lighting.maximum;
+  
+    expect(min).to.not.equal(0);
+    expect(min).to.not.be.null;
+    expect(max).to.not.equal(0);
+    expect(max).to.not.be.null;
+    expect(max).to.be.greaterThan(min);
+  });
+  
+  // =======================
+  // Labor
+  // =======================
+  test("Labor min/max should be valid", () => {
+    const min = res.body.labor.minimum;
+    const max = res.body.labor.maximum;
+  
+    expect(min).to.not.equal(0);
+    expect(min).to.not.be.null;
+    expect(max).to.not.equal(0);
+    expect(max).to.not.be.null;
+    expect(max).to.be.greaterThan(min);
+  });
+  
+  // =======================
+  // Total
+  // =======================
+  test("Total min/max should be valid", () => {
+    const min = res.body.total.minimum;
+    const max = res.body.total.maximum;
+  
+    expect(min).to.not.equal(0);
+    expect(min).to.not.be.null;
+    expect(max).to.not.equal(0);
+    expect(max).to.not.be.null;
+    expect(max).to.be.greaterThan(min);
+  });
+  
+  // =======================
+  // Backup Fund
+  // =======================
+  test("Backup Fund min/max should be valid", () => {
+    const min = res.body.backupFund.minimum;
+    const max = res.body.backupFund.maximum;
+  
+    expect(min).to.not.equal(0);
+    expect(min).to.not.be.null;
+    expect(max).to.not.equal(0);
+    expect(max).to.not.be.null;
+    expect(max).to.be.greaterThan(min);
+  });
+  
+  // =======================
+  // Cabinets Plus Storage
+  // =======================
+  test("Cabinets Plus Storage min/max should be valid", () => {
+    const min = res.body.cabinetsPlusStorage.minimum;
+    const max = res.body.cabinetsPlusStorage.maximum;
+  
+    expect(min).to.not.equal(0);
+    expect(min).to.not.be.null;
+    expect(max).to.not.equal(0);
+    expect(max).to.not.be.null;
+    expect(max).to.be.greaterThan(min);
+  });
+  
+}

@@ -1,0 +1,162 @@
+meta {
+  name: 25 GET Consolidate Profile Design ProjectProfile API
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{PROJECTID}}/profiles/design
+  body: json
+  auth: none
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("GET Design Summary API should return 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  // =======================
+  // Top-level text fields
+  // =======================
+  test("Title should be present", () => {
+    expect(res.body.title).to.equal("Excellent! Let’s look at your design details.");
+  });
+  
+  test("Subtitle should be present", () => {
+    expect(res.body.subtitle).to.not.be.empty;
+  });
+  
+  test("Continue button text should be correct", () => {
+    expect(res.body.continueButtonText).to.equal("Continue to Remodel Profile");
+  });
+  
+  test("Continue button subtitle should be correct", () => {
+    expect(res.body.continueButtonSubtitle).to.equal("View your Remodel Profile");
+  });
+  
+  test("Start over button text should be correct", () => {
+    expect(res.body.startOverButtonText).to.equal("Start Design Profile over");
+  });
+  
+  // =======================
+  // Kitchen Concept
+  // =======================
+  test("Kitchen concept should exist", () => {
+    expect(res.body.kitchenConcept).to.not.be.null;
+  });
+  
+  test("Kitchen concept display name should be Brew Hub", () => {
+    expect(res.body.kitchenConcept.displayName).to.equal("Brew Hub");
+  });
+  
+  test("Kitchen concept subtitle should be correct", () => {
+    expect(res.body.kitchenConcept.subtitle).to.equal("Your dream kitchen concept");
+  });
+  
+  test("Kitchen concept archetype ID should be present", () => {
+    expect(res.body.kitchenConcept.archetypeId).to.not.be.empty;
+  });
+  
+  test("Kitchen concept archetype short description should be present", () => {
+    expect(res.body.kitchenConcept.archetypeShortDescription).to.not.be.empty;
+  });
+  
+  test("Kitchen concept archetype long description should be present", () => {
+    expect(res.body.kitchenConcept.archetypeLongDescription).to.not.be.empty;
+  });
+  
+  // =======================
+  // Icebreaker Section
+  // =======================
+  test("Icebreaker section should be an array", () => {
+    expect(res.body.icebreaker).to.be.an("array");
+  });
+  
+  test("Icebreaker should contain 5 questions", () => {
+    expect(res.body.icebreaker.length).to.equal(5);
+  });
+  
+  // Icebreaker Question 1
+  test("Icebreaker Q1 should have tiles", () => {
+    expect(res.body.icebreaker[0].tiles).to.be.an("array").that.is.not.empty;
+  });
+  
+  // Icebreaker Question 2
+  test("Icebreaker Q2 subtitle should be present", () => {
+    expect(res.body.icebreaker[1].subtitle).to.not.be.empty;
+  });
+  
+  // Icebreaker Question 3
+  test("Icebreaker Q3 tiles should contain completion timing", () => {
+    const answer = res.body.icebreaker[2].tiles[0].displayName;
+    expect(
+      answer.includes("3 months") || answer.includes("6-12 months")
+    ).to.be.true;
+  });
+  
+  // Icebreaker Question 4
+  test("Icebreaker Q4 tiles should indicate journey stage", () => {
+    expect(res.body.icebreaker[3].tiles[0].displayName).to.not.be.empty;
+  });
+  
+  // Icebreaker Question 5
+  test("Icebreaker Q5 tiles should indicate professional status", () => {
+    expect(res.body.icebreaker[4].tiles[0].displayName).to.not.be.empty;
+  });
+  
+  // =======================
+  // Layout Section
+  // =======================
+  test("Layout section should exist", () => {
+    expect(res.body.layout).to.not.be.null;
+  });
+  
+  test("Layout subtitle should be present", () => {
+    expect(res.body.layout.subtitle).to.equal("My current kitchen:");
+  });
+  
+  test("Layout tiles should be an array", () => {
+    expect(res.body.layout.tiles).to.be.an("array");
+  });
+  
+  test("Layout should contain U-shaped layout", () => {
+    expect(res.body.layout.tiles[0].displayName).to.equal("U-shaped");
+  });
+  
+  test("Layout should include kitchen size information", () => {
+    expect(res.body.layout.tiles[1].displayName).to.contain("square feet");
+  });
+  
+  test("Layout should include household size information", () => {
+    expect(res.body.layout.tiles[2].displayName).to.contain("People");
+  });
+  
+  // =======================
+  // Optional Sections
+  // =======================
+  
+  // Activities section
+  test("Activities section should exist", () => {
+    expect(res.body.activities).to.not.be.null;
+  });
+  
+  test("Activities should have 3 tiles", () => {
+    expect(res.body.activities.tiles).to.be.an("array");
+    expect(res.body.activities.tiles.length).to.equal(3);
+  });
+  
+  // Storage Solutions section
+  test("Storage solutions section should exist", () => {
+    expect(res.body.storageSolutions).to.not.be.null;
+  });
+  
+  test("Storage solutions should have 3 activities", () => {
+    expect(res.body.storageSolutions.activities).to.be.an("array");
+    expect(res.body.storageSolutions.activities.length).to.equal(3);
+  });
+  
+}

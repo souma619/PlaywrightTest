@@ -1,0 +1,50 @@
+meta {
+  name: 37 POST Project details Reskins Add Image GenAI true JPEG
+  type: http
+  seq: 37
+}
+
+post {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{NEWPROJECTID}}/Reskins?projectId={{NEWPROJECTID}}&styleId={123CB8A2-FD71-41E6-8584-B1BCF328DEDE}&enableImageGeneration=false
+  body: multipartForm
+  auth: inherit
+}
+
+params:query {
+  projectId: {{NEWPROJECTID}}
+  styleId: {123CB8A2-FD71-41E6-8584-B1BCF328DEDE}
+  enableImageGeneration: false
+}
+
+tests {
+  const body = res.getBody();
+  
+  // ---------------- Status Code ----------------
+  
+  test("Status code is 201", () => {
+      expect(res.getStatus()).to.equal(201);
+  });
+  // ---------------- Field existence tests ----------------
+  test("id exists", () => {
+      expect(body.id).to.exist;
+  });
+  
+  test("projectId exists", () => {
+      expect(body.projectId).to.exist;
+  });
+  test("styleId exists", () => {
+      expect(body.styleId).to.exist;
+  });
+  
+  test("styleName exists", () => {
+      expect(body.styleName).to.exist;
+  });
+  
+  test("sourceImageUrl exists", () => {
+      expect(body.sourceImageUrl).to.exist;
+  });
+  
+  test("outputImageUrl exists", () => {
+      expect(body.outputImageUrl).to.exist;
+  });
+}

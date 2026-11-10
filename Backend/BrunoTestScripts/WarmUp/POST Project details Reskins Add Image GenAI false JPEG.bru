@@ -1,0 +1,23 @@
+meta {
+  name: POST Project details Reskins Add Image GenAI false JPEG
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{NEWPROJECTID}}/Reskins?projectId={{NEWPROJECTID}}&styleId={123CB8A2-FD71-41E6-8584-B1BCF328DEDE}&enableImageGeneration=false
+  body: multipartForm
+  auth: inherit
+}
+
+params:query {
+  projectId: {{NEWPROJECTID}}
+  styleId: {123CB8A2-FD71-41E6-8584-B1BCF328DEDE}
+  enableImageGeneration: false
+}
+
+tests {
+  test("Status is 201", () => {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

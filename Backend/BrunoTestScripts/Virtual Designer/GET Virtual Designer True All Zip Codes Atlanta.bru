@@ -1,0 +1,184 @@
+meta {
+  name: GET Virtual Designer True All Zip Codes Atlanta
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/data-science/postal-code/validate?postalCode={{ZIP_CODE_Atlanta}}&projectId={{NEWPROJECTID}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  postalCode: {{ZIP_CODE_Atlanta}}
+  projectId: {{NEWPROJECTID}}
+}
+
+script:pre-request {
+  // Get ZIP codes from environment variable
+  const zipCodesStr = bru.getEnvVar("zipCodes");
+  
+  // Fallback: if not in env, define inline
+  const allZipCodes = zipCodesStr ? JSON.parse(zipCodesStr) : [
+      // Atlanta area ZIP codes
+    "30369","30303","39901","30313","31106","31107","31126","31131","31139","31150",
+    "31156","31192","31193","30301","30302","30325","30343","30348","30353","30355",
+    "30357","30358","30364","30368","30370","30371","30374","30375","30377","30380",
+    "30384","30385","30388","30392","30394","30396","30398","30334","30332","30312",
+    "30308","30314","30361","30363","31141","31145","31146","30309","30310","30306",
+    "30315","30307","30318","30333","30316","30317","30311","30322","30324","30359",
+    "30305","30031","30036","30037","30030","30329","30354","30326","31119","30032",
+    "30304","30344","30033","30327","30002","30321","30320","30079","30288","30342",
+    "30337","30339","30345","30319","30331","30298","30080","30336","30126","30378",
+    "30034","30021","30297","30082","30366","30272","30341","30081","31136","30168",
+    "30035","30072","30083","30294","30349","30346","30287","30328","30362","30085",
+    "30086","30260","30084","30088","30067","30340","30069","30338","30273","30274",
+    "30106","30122","30360","30296","30060","30356","30008","30074","30068","30291",
+    "30111","30038","30090","30061","30063","30065","30093","30006","30007","30350",
+    "30237","30091","30071","30003","30010","30087","30236","30213","30058","30048",
+    "30064","30092","30062","30047","30238","30281","30077","30076","30066","30127",
+    "30214","30022","30133","30135","30075","30096","30039","30154","30095","30098",
+    "30099","30026","30029","30152","30094","30134","30290","30156","30160","30044",
+    "30144","30250","30012","30141","30009","30023","30268","30078","30097","30228",
+    "30253","30005","30188","30101","30013","30004","30187","30215","30017","30046",
+    "30269","30042","30049","31169","30024","30189","30146","30043","30102","30252",
+    "30045","30157","30277","30284","30265","30052","30142","30180","30054","30016",
+    "30115","30132","30070","30015","30289","30137","30248","30515","30223","30019",
+    "30185","30518","30040","30205","30276","30179","30014","30212","30169","30264",
+    "30041","30114","30275","30018","30271","30519","30234","30011","30263","30121",
+    "30229","30116","30620","30259","30028","30233","30184","30224","30120","30542",
+    "30655","30656","30178","30107","30266","30153","30119","30112","30025","30183",
+    "30055","30292","30118","30123","30548","30502","30110","30151","30517","30220",
+    "30680","30251","30109","30566","30117","30104","30257","30218","30206","30295",
+    "30504","30216","30177","30150","30113","30171","30140","30056","30663","30641",
+    "30145","30666","30506","30143","30575","30148","31085","30182","30503","30173",
+    "30139","30507","30204","30170","30534","30623","30567","30501","30176","30645",
+    "30622","30256","31064","30230","30108","30103","30125","30222","30549","30621",
+    "30258","30285","30217","30147","30293","30161","30677","30638","30650","30162",
+    "30164","30175","30734","30606","30172","30543","30261","36269","31029","30564",
+    "30607","30138","30597","30149","30732","30733","36273","36263","30558","30609"
+  ];
+  
+  
+  // ── Random sample of 20 zip codes — generated ONCE per collection run ──────
+  // Stored in a runtime var so every request in the run uses the SAME sample
+  // set (otherwise each request would re-shuffle and get a different list).
+  let sampledZips = bru.getVar("sampledZipCodes");
+  
+  if (!sampledZips) {
+    // Fisher-Yates shuffle, then take first 20
+    const pool = [...allZipCodes];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    sampledZips = pool.slice(0, 20);
+    bru.setVar("sampledZipCodes", JSON.stringify(sampledZips));
+    console.log(`🎲 New random sample of 20 ZIP codes generated: ${sampledZips.join(", ")}`);
+  } else {
+    sampledZips = JSON.parse(sampledZips);
+  }
+  
+  const currentRun = bru.getVar("runCount") || 0;
+  
+  if (currentRun < sampledZips.length) {
+    bru.setVar("ZIP_CODE_Atlanta", sampledZips[currentRun]);
+    console.log(`✓ Using ZIP Code: ${sampledZips[currentRun]} (Run ${currentRun + 1}/${sampledZips.length})`);
+  } else {
+    console.log("✅ All 20 sampled ZIP codes completed!");
+  }
+}
+
+script:post-response {
+  // Get current run number
+  const currentRun = bru.getVar("runCount") || 0;
+  const nextRun = currentRun + 1;
+  
+  // Update run counter
+  bru.setVar("runCount", nextRun);
+  
+  // Use the SAMPLED list length (20), not the full zipCodes list,
+  // since pre-request only generates ZIP_CODE_Releigh for the sample.
+  const sampledZipsStr = bru.getVar("sampledZipCodes");
+  const totalIterations = sampledZipsStr ? JSON.parse(sampledZipsStr).length : 20;
+  
+  // Check if more iterations needed
+  if (nextRun < totalIterations) {
+      console.log(`→ Triggering iteration ${nextRun + 1}/${totalIterations}...`);
+  
+      // Trigger next request after a small delay
+      setTimeout(() => {
+          bru.runRequest("GET Virtual Designer True All Zip Codes Atlanta");
+      }, 2500);
+  } else {
+      console.log("🎉 All 20 sampled iterations completed!");
+      bru.setVar("runCount", 0); // Reset counter
+      bru.setVar("sampledZipCodes", null); // Clear sample so next run picks a fresh random 20
+  }
+}
+
+tests {
+  const requestedZip = bru.getVar("ZIP_CODE_Atlanta");
+  const currentRun = bru.getVar("runCount") || 0;
+  
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`🧪 TESTING ZIP CODE: ${requestedZip} (Run ${currentRun + 1}/283)`);
+  console.log(`${"=".repeat(60)}\n`);
+  
+  // Test 1: Status code is 200
+  test("Status code is 200", () => {
+      const statusCode = res.getStatus();
+      console.log(`📋 Test 1: Status Code Validation`);
+      console.log(`   ├─ Expected: 200`);
+      console.log(`   ├─ Received: ${statusCode}`);
+      console.log(`   └─ Result: ${statusCode === 200 ? '✅ PASS' : '❌ FAIL'}`);
+      
+      expect(statusCode).to.equal(200);
+  });
+  
+  // Test 2: Response contains the ZIP code that was sent in the request
+  test("Response contains the requested ZIP code", () => {
+      console.log(`\n📋 Test 2: ZIP Code Validation`);
+      
+      const responseData = res.getBody();
+      
+      console.log(`   ├─ Requested ZIP: ${requestedZip}`);
+      console.log(`   ├─ Response Type: ${Array.isArray(responseData) ? 'Array' : typeof responseData}`);
+      console.log(`   ├─ Response Length: ${responseData.length}`);
+      
+      // Check if response is an array and has at least one item
+      expect(responseData).to.be.an('array');
+      expect(responseData.length).to.be.greaterThan(0);
+      
+      // Check if project_zipcode matches the requested ZIP
+      const projectZip = responseData[0].project_zipcode;
+      const dealerName = responseData[0].dealer_name || 'N/A';
+      
+      console.log(`   ├─ Response ZIP: ${projectZip}`);
+      console.log(`   ├─ Dealer Name: ${dealerName}`);
+      console.log(`   ├─ Match: ${projectZip === requestedZip ? 'Yes' : 'No'}`);
+      console.log(`   └─ Result: ${projectZip === requestedZip ? '✅ PASS' : '❌ FAIL'}`);
+      
+      expect(projectZip).to.equal(bru.getVar("ZIP_CODE_Atlanta"));
+  });
+  
+  // Test 3: is_virtual_designer is true
+  test("is_virtual_designer is true", () => {
+      console.log(`\n📋 Test 3: Virtual Designer Flag Validation`);
+      
+      const responseData = res.getBody();
+      const isVirtualDesigner = responseData[0].is_virtual_designer;
+      
+      console.log(`   ├─ Expected: true`);
+      console.log(`   ├─ Received: ${isVirtualDesigner}`);
+      console.log(`   ├─ Type: ${typeof isVirtualDesigner}`);
+      console.log(`   └─ Result: ${isVirtualDesigner === true ? '✅ PASS' : '❌ FAIL'}`);
+      
+      expect(isVirtualDesigner).to.equal(true);
+  });
+  
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`✅ ALL TESTS PASSED FOR ZIP: ${requestedZip}`);
+  console.log(`${"=".repeat(60)}\n`);
+}

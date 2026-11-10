@@ -1,0 +1,29 @@
+meta {
+  name: 43 Delete Project details Reskins
+  type: http
+  seq: 43
+}
+
+delete {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{NEWPROJECTID}}/Reskins/{{RESKINID}}
+  body: json
+  auth: inherit
+}
+
+tests {
+  const body = res.getBody();
+  
+  // ---------------- Status Code ----------------
+  test("Status code is 404", () => {
+      expect(res.getStatus()).to.equal(404);
+  });
+  
+  // ---------------- Body contains message ----------------
+  test("Response body contains max count message", () => {
+      // Convert body to string in case it's not plain text
+      const bodyText = typeof body === "string" ? body : JSON.stringify(body);
+      expect(bodyText).to.contain("Reskin entity with id:");
+      expect(bodyText).to.contain("was not found.");
+  });
+  
+}

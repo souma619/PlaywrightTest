@@ -1,0 +1,206 @@
+meta {
+  name: 46 GET Designer With iCabinetry
+  type: http
+  seq: 44
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/ChannelDiscovery?projectId={{NEWPROJECTID}}&postalCode={{ZIP_CODE}}
+  body: json
+  auth: inherit
+}
+
+params:query {
+  projectId: {{NEWPROJECTID}}
+  postalCode: {{ZIP_CODE}}
+}
+
+script:pre-request {
+  // Get ZIP codes from environment variable
+  const zipCodesStr = bru.getEnvVar("zipCodes");
+  
+  // Fallback: if not in env, define inline
+  const zipCodes = zipCodesStr ? JSON.parse(zipCodesStr) : [
+    // Original Map area ZIP codes
+    "59701","50622","32086","59330","59301","59105", "59106", "59401", "59427", "59457"]
+  
+  
+  const currentRun = bru.getVar("runCountiCab") || 0;
+  
+  if (currentRun < zipCodes.length) {
+      bru.setVar("ZIP_CODE", zipCodes[currentRun]);
+      console.log(`✓ Using ZIP Code: ${zipCodes[currentRun]} (Run ${currentRun + 1}/${zipCodes.length})`);
+  } else {
+      console.log("✅ All ZIP codes completed!");
+  }
+}
+
+script:post-response {
+  // Array of ZIP codes (same as Pre-Request)
+  const zipCodes = [
+    // Original Map area ZIP codes
+    "59701","50622","32086","59330","59301","59105", "59106", "59401", "59427", "59457"];
+  
+  // Get current run number
+  const currentRun = bru.getVar("runCountiCab") || 0;
+  const nextRun = currentRun + 1;
+  
+  // Update run counter
+  bru.setVar("runCountiCab", nextRun);
+  
+  // Check if more iterations needed
+  if (nextRun < zipCodes.length) {
+      console.log(`→ Triggering iteration ${nextRun + 1}/${zipCodes.length}...`);
+      
+      // Trigger next request after a small delay
+      setTimeout(() => {
+          bru.runRequest("46 GET Designer With iCabinetry");
+      }, 2500);
+  } else {
+      console.log("🎉 All iterations completed!");
+      bru.setVar("runCountiCab", 0); // Reset counter
+  }
+}
+
+tests {
+  const requestedZip = bru.getVar("ZIP_CODE");
+  const currentRun = bru.getVar("runCountMAP") || 0;
+  
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`🧪 TESTING ZIP CODE: ${requestedZip} (Run ${currentRun + 1}/283)`);
+  console.log(`${"=".repeat(60)}\n`);
+  
+  const body = res.getBody();
+  
+  // Test 1: Status Code
+  test("Status code is 200", () => {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Test 2: Response is an array
+  test("Response should be an array", () => {
+      expect(body).to.be.an("array");
+  });
+  
+  // Test 3: At least one dealer returned
+  test("Response should contain at least one dealer", () => {
+      expect(body.length).to.be.greaterThan(0);
+  });
+  
+  // Map of "expected" logical field -> actual field name in the response
+  const fieldMap = {
+      dealer_name: "channelName",
+      can_send_profile: "canSendProfile",
+      dealer_id: "channelId",
+      dealer_address_id: "addressId",
+      distance_from_source: "distanceFromSource",
+      dealer_address_1: "addressLine1",
+      dealer_city: "city",
+      dealer_state_code: "state",
+      dealer_zipcode: "channelPostalCode",
+      dealer_country_code: "country",
+      dealer_phone: "phone",
+      dealer_latitude: "latitude",
+      dealer_longitude: "longitude",
+      email: "email",
+      url: "website",
+      brands: "brands",
+      project_city: "postalCity",
+      project_state_code: "postalState",
+      project_zipcode: "postalCode",
+      project_country_code: "postalCountry",
+      channel_type: "channelType",
+      channel_product: "channelProduct"
+  };
+  
+  // Test 4: Validate all nodes contain required fields
+  test("All dealer nodes contain required fields", () => {
+      body.forEach((dealer, index) => {
+          console.log(`\n🔍 Validating Dealer ${index + 1}: ${dealer.channelName}`);
+          Object.entries(fieldMap).forEach(([logicalName, actualField]) => {
+              const exists = dealer[actualField] !== undefined;
+              console.log(
+                  `   ${exists ? "✅" : "❌"} ${logicalName} (${actualField}): ${
+                      exists ? "Present" : "Missing"
+                  }`
+              );
+              expect(
+                  exists,
+                  `Dealer ${index + 1} missing field: ${actualField} (expected as ${logicalName})`
+              ).to.be.true;
+          });
+      });
+  });
+  
+  // Test 5: channelType must be one of the known valid dealer types
+  // NOTE: "Enrolled Dealer" is not the only valid type — "Online Dealer" is also
+  // legitimate (e.g. dealers who serve a ZIP remotely rather than locally).
+  // Update this list as you discover more valid types from real responses.
+  const VALID_CHANNEL_TYPES = ["ENROLLED DEALER", "ONLINE_DEALER"];
+  
+  test("All dealers should have a valid channel_type", () => {
+      body.forEach((dealer, index) => {
+          console.log(
+              `Dealer ${index + 1}: channelType = ${dealer.channelType}`
+          );
+          expect(
+              VALID_CHANNEL_TYPES,
+              `Dealer ${index + 1} has unexpected channelType: ${dealer.channelType}`
+          ).to.include(dealer.channelType);
+      });
+  });
+  
+  // Test 6: Brands should contain at least one value
+  test("All dealers should have at least one brand", () => {
+      body.forEach((dealer, index) => {
+          expect(
+              dealer.brands,
+              `Dealer ${index + 1} brands should be an array`
+          ).to.be.an("array");
+          expect(
+              dealer.brands.length,
+              `Dealer ${index + 1} should have at least one brand`
+          ).to.be.greaterThan(0);
+      });
+  });
+  
+  // Test 6b (new): website should be a usable URL/domain string,
+  // tolerating both plain domains and markdown-style links
+  test("All dealers should have a valid website value", () => {
+      body.forEach((dealer, index) => {
+          expect(
+              dealer.website,
+              `Dealer ${index + 1} website should be a non-empty string`
+          ).to.be.a("string").and.not.empty;
+  
+          // Extract a plain domain whether it's markdown `[label](url)` or plain text
+          const markdownMatch = dealer.website.match(/\[([^\]]+)\]\(([^)]+)\)/);
+          const plainDomainOrUrl = markdownMatch ? markdownMatch[2] : dealer.website;
+  
+          console.log(
+              `Dealer ${index + 1}: website = "${dealer.website}" -> resolved: "${plainDomainOrUrl}"`
+          );
+  
+          // Loosely validate it looks like a domain or URL
+          expect(
+              plainDomainOrUrl,
+              `Dealer ${index + 1} website does not look like a valid domain/URL`
+          ).to.match(/^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/.*)?$/);
+      });
+  });
+  
+  // Test 7: Requested ZIP should match response ZIP (postalCode field)
+  test("Project zipcode should match requested zipcode", () => {
+      // Read from the URL params instead of the potentially-overwritten variable
+      const urlZip = req.getUrl().match(/postalCode=(\d+)/)?.[1];
+      body.forEach((dealer, index) => {
+          console.log(
+              `Dealer ${index + 1}: Requested ZIP=${urlZip}, Response ZIP=${dealer.postalCode}`
+          );
+          expect(
+              dealer.postalCode,
+              `Dealer ${index + 1} returned incorrect project zipcode`
+          ).to.equal(urlZip);
+      });
+  });
+}

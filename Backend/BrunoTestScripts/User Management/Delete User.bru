@@ -1,0 +1,19 @@
+meta {
+  name: Delete User
+  type: http
+  seq: 4
+}
+
+delete {
+  url: https://graph.microsoft.com/v1.0/users/60fbba6d-2267-4423-98b6-1aa6640d6191
+  body: none
+  auth: bearer
+}
+
+headers {
+  ~Authorization: 
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}

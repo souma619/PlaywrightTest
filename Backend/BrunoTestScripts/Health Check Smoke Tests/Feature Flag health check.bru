@@ -1,0 +1,21 @@
+meta {
+  name: Feature Flag health check
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/featureflag/v1/HealthCheck
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: text/plain
+}
+
+tests {
+  test("GET Feature Flag Health Check to have a 200 status response", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

@@ -1,0 +1,19 @@
+meta {
+  name: Delete User from Userdetails
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{BASEURL}}/user/{{USER_ID_ALPHA}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{USER_DETAILS_TOKEN}}
+}

@@ -1,0 +1,252 @@
+meta {
+  name: 19 GET Budget Results ProjectProfile API
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{PROJECTID}}
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "id": "ddf20f39-45fa-4e67-a90b-08dd664b9c51",
+    "userId": null,
+    "interviews": {
+      "icebreaker": {
+        "id": "2ef6204a-8e1d-48aa-b7fb-01416a57f276",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:36:14.429+00:00"
+      },
+      "stylePersonality": {
+        "id": "9e5150f7-2483-4f85-a784-789297e4c9bb",
+        "isCompleted": false,
+        "completedOn": null
+      },
+      "styleFinder": {
+        "id": "313bac32-57eb-4f84-b33a-eed36f8fbe97",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:45:58.355+00:00"
+      },
+      "styleImageAnalyzer": {
+        "id": "810a20cf-3e2e-4235-a579-9e12d003e194",
+        "isCompleted": false,
+        "completedOn": null
+      },
+      "styleProfileFavorites": {
+        "id": "4077db96-f7a4-4730-9ceb-e73012db9b79",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:46:24.41+00:00"
+      },
+      "designIntro": {
+        "id": "a95d9c39-7d86-450f-937c-ec78b2f58b07",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:55:02.972+00:00"
+      },
+      "designActivities": {
+        "id": "64155f03-1e5c-45e6-9438-c42976807add",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:55:26.524+00:00"
+      },
+      "storageSolutionFavorites": {
+        "id": "dd442368-98b3-4aa3-b2e3-5e666e441f07",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:55:35.535+00:00"
+      },
+      "designCabinetTypes": {
+        "id": "0de0259b-7d7f-4672-b6e0-5028da323871",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:55:48.233+00:00"
+      },
+      "budget": {
+        "id": "dbbc27d3-ca70-4dfc-b25c-fa2001a984a0",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T09:06:12.157Z"
+      }
+    },
+    "profileContentType": "application/json",
+    "profile": {
+      "lastVisitedPath": "/budget",
+      "remodelProfileCompleted": false,
+      "selectedStyle": "4077db96-f7a4-4730-9ceb-e73012db9b79",
+      "selectedArchetype": "32e8f0a0-9441-4569-8a17-e3de34b27040",
+      "selectedCabinets": "Semi-custom cabinets"
+    },
+    "notes": {
+      "styleNote": "",
+      "designNote": ""
+    },
+    "uploads": null,
+    "metadata": null,
+    "created": "2025-03-24T16:32:48.4596265+00:00",
+    "lastModified": "2025-03-25T08:55:59.305257+00:00",
+    "feedback": {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "projectId": "ddf20f39-45fa-4e67-a90b-08dd664b9c51",
+      "rating": 0,
+      "comment": null,
+      "created": null
+    },
+    "dealerShare": null,
+    "flowId": null
+  }
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("GET Project Profile API should return 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Root-level fields
+  test("Project ID should be present", () => {
+    expect(res.body.id).to.not.be.empty;
+  });
+  
+  test("Profile content type should be application/json", () => {
+    expect(res.body.profileContentType).to.equal("application/json");
+  });
+  
+  test("Created timestamp should be present", () => {
+    expect(res.body.created).to.not.be.empty;
+  });
+  
+  test("Last modified timestamp should be present", () => {
+    expect(res.body.lastModified).to.not.be.empty;
+  });
+  
+  // Interviews – Icebreaker
+  test("Icebreaker interview should be completed", () => {
+    expect(res.body.interviews.icebreaker.isCompleted).to.equal(true);
+  });
+  
+  test("Icebreaker completedOn should be present", () => {
+    expect(res.body.interviews.icebreaker.completedOn).to.not.be.null;
+  });
+  
+  // Interviews – Style Personality
+  test("Style Personality interview should be completed", () => {
+    expect(res.body.interviews.stylePersonality.isCompleted).to.equal(true);
+  });
+  
+  test("Style Personality completedOn should be present", () => {
+    expect(res.body.interviews.stylePersonality.completedOn).to.not.be.null;
+  });
+  
+  // Interviews – Style Finder
+  test("Style Finder interview should not be completed", () => {
+    expect(res.body.interviews.styleFinder.isCompleted).to.equal(false);
+  });
+  
+  test("Style Finder completedOn should be null", () => {
+    expect(res.body.interviews.styleFinder.completedOn).to.equal(null);
+  });
+  
+  // Interviews – Style Image Analyzer
+  test("Style Image Analyzer interview should not be completed", () => {
+    expect(res.body.interviews.styleImageAnalyzer.isCompleted).to.equal(false);
+  });
+  
+  test("Style Image Analyzer completedOn should be null", () => {
+    expect(res.body.interviews.styleImageAnalyzer.completedOn).to.equal(null);
+  });
+  
+  // Interviews – Style Tuner
+  test("Style Tuner interview should be completed", () => {
+    expect(res.body.interviews.styleTuner.isCompleted).to.equal(true);
+  });
+  
+  test("Style Tuner completedOn should be present", () => {
+    expect(res.body.interviews.styleTuner.completedOn).to.not.be.null;
+  });
+  
+  // Interviews – Style Profile Favorites
+  test("Style Profile Favorites interview should not be completed", () => {
+    expect(res.body.interviews.styleProfileFavorites.isCompleted).to.equal(false);
+  });
+  
+  test("Style Profile Favorites completedOn should be null", () => {
+    expect(res.body.interviews.styleProfileFavorites.completedOn).to.equal(null);
+  });
+  
+  // Interviews – Design Flow
+  test("Design Intro interview should be completed", () => {
+    expect(res.body.interviews.designIntro.isCompleted).to.equal(true);
+  });
+  
+  test("Design Activities interview should be completed", () => {
+    expect(res.body.interviews.designActivities.isCompleted).to.equal(true);
+  });
+  
+  test("Storage Solution Favorites interview should be completed", () => {
+    expect(res.body.interviews.storageSolutionFavorites.isCompleted).to.equal(true);
+  });
+  
+  test("Design Cabinet Types interview should be completed", () => {
+    expect(res.body.interviews.designCabinetTypes.isCompleted).to.equal(true);
+  });
+  
+  // Interviews – Budget
+  test("Budget interview should not be completed", () => {
+    expect(res.body.interviews.budget.isCompleted).to.equal(false);
+  });
+  
+  test("Budget completedOn should be null", () => {
+    expect(res.body.interviews.budget.completedOn).to.equal(null);
+  });
+  
+  // Interviews – Starting Budget
+  test("Starting Budget interview should be completed", () => {
+    expect(res.body.interviews.startingBudget.isCompleted).to.equal(true);
+  });
+  
+  test("Starting Budget completedOn should be present", () => {
+    expect(res.body.interviews.startingBudget.completedOn).to.not.be.null;
+  });
+  
+  // Interviews – Itemized Budget
+  test("Itemized Budget interview should be completed", () => {
+    expect(res.body.interviews.itemizedBudget.isCompleted).to.equal(true);
+  });
+  
+  test("Itemized Budget completedOn should be present", () => {
+    expect(res.body.interviews.itemizedBudget.completedOn).to.not.be.null;
+  });
+  
+  // Profile validations
+  test("Remodel profile should not be completed", () => {
+    expect(res.body.profile.remodelProfileCompleted).to.equal(false);
+  });
+  
+  test("Last visited path should be /budget/start", () => {
+    expect(res.body.profile.lastVisitedPath).to.equal("/budget/start");
+  });
+  
+  test("Selected cabinets should be Semi-custom cabinets", () => {
+    expect(res.body.profile.selectedCabinets).to.equal("Semi-custom cabinets");
+  });
+  
+  // Feedback
+  test("Feedback rating should be 0", () => {
+    expect(res.body.feedback.rating).to.equal(0);
+  });
+  
+  test("Feedback comment should be null", () => {
+    expect(res.body.feedback.comment).to.equal(null);
+  });
+  
+  
+  test("Showroom match type should be Unrestricted", () => {
+    expect(res.body.showroomMatchType).to.equal("Unrestricted");
+  });
+  
+  test("Showroom should not be assigned", () => {
+    expect(res.body.showroomAssigned).to.equal(null);
+  });
+  
+}

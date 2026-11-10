@@ -1,0 +1,283 @@
+meta {
+  name: 49 GET Designer With TraVek
+  type: http
+  seq: 48
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/ChannelDiscovery?projectId={{NEWPROJECTID}}&postalCode={{ZIP_CODE}}&referrer=CNow
+  body: json
+  auth: inherit
+}
+
+params:query {
+  projectId: {{NEWPROJECTID}}
+  postalCode: {{ZIP_CODE}}
+  referrer: CNow
+}
+
+script:pre-request {
+  // Get ZIP codes from environment variable
+  const zipCodesStr = bru.getEnvVar("zipCodes");
+  
+  // Fallback: if not in env, define inline
+  const zipCodes = zipCodesStr ? JSON.parse(zipCodesStr) : [
+    "85307",
+    "85308",
+    "85309",
+    "85310",
+    "85320",
+    "85323",
+    "85326",
+    "85331",
+    "85335",
+    "85338",
+    "85339",
+    "85340",
+    "85345",
+    "85353",
+    "85363",
+    "85373",
+    "85374",
+    "85375",
+    "85377",
+    "85378",
+    "85379",
+    "85380",
+    "85381",
+    "85382",
+    "85383",
+    "85387",
+    "85388",
+    "85392",
+    "85395"
+  ];
+  
+  
+  const currentRun = bru.getVar("runCountTravek") || 0;
+  
+  if (currentRun < zipCodes.length) {
+      bru.setVar("ZIP_CODE", zipCodes[currentRun]);
+      console.log(`✓ Using ZIP Code: ${zipCodes[currentRun]} (Run ${currentRun + 1}/${zipCodes.length})`);
+  } else {
+      console.log("✅ All ZIP codes completed!");
+  }
+}
+
+script:post-response {
+  // Array of ZIP codes (same as Pre-Request)
+  const zipCodes = [
+    // Original Map area ZIP codes
+    "85307",
+    "85308",
+    "85309",
+    "85310",
+    "85320",
+    "85323",
+    "85326",
+    "85331",
+    "85335",
+    "85338",
+    "85339",
+    "85340",
+    "85345",
+    "85353",
+    "85363",
+    "85373",
+    "85374",
+    "85375",
+    "85377",
+    "85378",
+    "85379",
+    "85380",
+    "85381",
+    "85382",
+    "85383",
+    "85387",
+    "85388",
+    "85392",
+    "85395"]
+  ;
+  
+  // Get current run number
+  const currentRun = bru.getVar("runCountTravek") || 0;
+  const nextRun = currentRun + 1;
+  
+  // Update run counter
+  bru.setVar("runCountTravek", nextRun);
+  
+  // Check if more iterations needed
+  if (nextRun < zipCodes.length) {
+      console.log(`→ Triggering iteration ${nextRun + 1}/${zipCodes.length}...`);
+      
+      // Trigger next request after a small delay
+      setTimeout(() => {
+          bru.runRequest("49 GET Designer With TraVek");
+      }, 2500);
+  } else {
+      console.log("🎉 All iterations completed!");
+      bru.setVar("runCountTravek", 0); // Reset counter
+  }
+}
+
+tests {
+  const requestedZip = bru.getVar("ZIP_CODE");
+  const currentRun = bru.getVar("runCountTravek") || 0;
+  
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`🧪 TESTING ZIP CODE: ${requestedZip} (Run ${currentRun + 1}/29)`);
+  console.log(`${"=".repeat(60)}\n`);
+  
+  const body = res.getBody();
+  
+  // Test 1: Status Code
+  test("Status code is 200", () => {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Test 2: Response is an array
+  test("Response should be an array", () => {
+      expect(body).to.be.an("array");
+  });
+  
+  // Test 3: At least one dealer returned
+  test("Response should contain at least one dealer", () => {
+      expect(body.length).to.be.greaterThan(0);
+  });
+  
+  // Map of "expected" logical field -> actual field name in the response
+  const fieldMap = {
+      dealer_name: "channelName",
+      can_send_profile: "canSendProfile",
+      dealer_id: "channelId",
+      dealer_address_id: "addressId",
+      distance_from_source: "distanceFromSource",
+      dealer_address_1: "addressLine1",
+      dealer_city: "city",
+      dealer_state_code: "state",
+      dealer_zipcode: "channelPostalCode",
+      dealer_country_code: "country",
+      dealer_phone: "phone",
+      dealer_latitude: "latitude",
+      dealer_longitude: "longitude",
+      email: "email",
+      url: "website",
+      brands: "brands",
+      project_city: "postalCity",
+      project_state_code: "postalState",
+      project_zipcode: "postalCode",
+      project_country_code: "postalCountry",
+      channel_type: "channelType",
+      channel_product: "channelProduct",
+      is_virtual_designer: "isVirtualDesigner"
+  };
+  
+  // Test 4: Validate required fields (using actual API field names)
+  test("All dealer nodes contain required fields", () => {
+      body.forEach((dealer, index) => {
+          console.log(`\n🔍 Validating Dealer ${index + 1}: ${dealer.channelName}`);
+          Object.entries(fieldMap).forEach(([logicalName, actualField]) => {
+              const exists = dealer[actualField] !== undefined;
+              console.log(
+                  `   ${exists ? "✅" : "❌"} ${logicalName} (${actualField}): ${
+                      exists ? "Present" : "Missing"
+                  }`
+              );
+              expect(
+                  exists,
+                  `Dealer ${index + 1} missing field: ${actualField} (expected as ${logicalName})`
+              ).to.be.true;
+          });
+      });
+  });
+  
+  // Test 5: Validate dealer data
+  test("Dealer should contain valid travek inc information", () => {
+      body.forEach((dealer, index) => {
+          console.log(`\nDealer ${index + 1}: ${dealer.channelName}`);
+  
+          expect(
+              dealer.channelType,
+              `Dealer ${index + 1} has invalid channelType`
+          ).to.equal("TRAVEK");
+  
+          expect(
+              dealer.isVirtualDesigner,
+              `Dealer ${index + 1} has invalid isVirtualDesigner`
+          ).to.equal(false);
+  
+          expect(
+              dealer.canSendProfile,
+              `Dealer ${index + 1} has invalid canSendProfile`
+          ).to.equal(false);
+  
+          expect(
+              dealer.channelName,
+              `Dealer ${index + 1} channelName should not be empty`
+          ).to.be.a("string").and.not.empty;
+      });
+  });
+  
+  // Test 6: Brands validation
+  test("All dealers should have at least one brand", () => {
+      body.forEach((dealer, index) => {
+          expect(
+              dealer.brands,
+              `Dealer ${index + 1} brands should be an array`
+          ).to.be.an("array");
+  
+          expect(
+              dealer.brands.length,
+              `Dealer ${index + 1} should have at least one brand`
+          ).to.be.greaterThan(0);
+  
+          console.log(
+              `Dealer ${index + 1} Brands: ${dealer.brands.join(", ")}`
+          );
+      });
+  });
+  
+  // Test 7: Requested ZIP should match response ZIP (postalCode field)
+  test("Project zipcode should match requested zipcode", () => {
+      // Read from the URL params instead of the potentially-overwritten variable
+      const urlZip = req.getUrl().match(/postalCode=(\d+)/)?.[1];
+  
+      body.forEach((dealer, index) => {
+          console.log(
+              `Dealer ${index + 1}: Requested ZIP=${urlZip}, Response ZIP=${dealer.postalCode}`
+          );
+  
+          expect(
+              dealer.postalCode,
+              `Dealer ${index + 1} returned incorrect project zipcode`
+          ).to.equal(urlZip);
+      });
+  });
+  
+  // Test 8: Coordinates should be valid
+  test("Dealer coordinates should be valid", () => {
+      body.forEach((dealer, index) => {
+          expect(
+              dealer.latitude,
+              `Dealer ${index + 1} latitude invalid`
+          ).to.be.a("number");
+  
+          expect(
+              dealer.longitude,
+              `Dealer ${index + 1} longitude invalid`
+          ).to.be.a("number");
+      });
+  });
+  
+  // Test 9: Distance should be non-negative
+  test("Distance from source should be valid", () => {
+      body.forEach((dealer, index) => {
+          expect(
+              dealer.distanceFromSource,
+              `Dealer ${index + 1} distance invalid`
+          ).to.be.at.least(0);
+      });
+  });
+  
+  console.log(`\n✅ Completed validation for ZIP Code: ${requestedZip}`);
+}

@@ -1,0 +1,22 @@
+meta {
+  name: 04-GET Health Check
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{BASEURL}}/user/healthcheck
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+tests {
+  bru.setEnvVar("NEWPROJECTID", res.getBody().id)
+  test("Status is 201", () => {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

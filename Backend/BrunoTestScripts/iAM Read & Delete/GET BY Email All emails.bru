@@ -1,0 +1,39 @@
+meta {
+  name: GET BY Email All emails
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{AUDIENCE}}users?q=email:soumabha.bhandari.mbd01* OR email.domain:soumabha.bhandari.mbd01*&search_engine=v3
+  body: none
+  auth: bearer
+}
+
+params:query {
+  q: email:soumabha.bhandari.mbd01* OR email.domain:soumabha.bhandari.mbd01*
+  search_engine: v3
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+script:post-response {
+  const body = res.getBody();
+  
+  if (body && body[0] && body[0].user_id) {
+  
+    const fullUserId = body[0].user_id;
+    const userIdAlpha = fullUserId.split('|')[1];
+  
+    bru.setEnvVar("USER_ID", fullUserId);
+    bru.setEnvVar("USER_ID_ALPHA", userIdAlpha);
+  
+  } else {
+  
+    bru.setEnvVar("USER_ID", "not-found");
+    bru.setEnvVar("USER_ID_ALPHA", "not-found");
+  
+  }
+}

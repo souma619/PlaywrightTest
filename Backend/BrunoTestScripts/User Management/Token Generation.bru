@@ -1,0 +1,27 @@
+meta {
+  name: Token Generation
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://login.microsoftonline.com/d3f681fe-2153-4d07-a9cf-bb00e42def9c/oauth2/token
+  body: formUrlEncoded
+  auth: none
+}
+
+headers {
+  Content-Type: application/x-www-form-urlencoded
+  Cookie: fpc=Ap2UUfzmPmpFicoLIt1c5PnqEvm8AQAAAEs_9d4OAAAA; stsservicecookie=estsfd; x-ms-gateway-slice=estsfd
+}
+
+body:form-urlencoded {
+  grant_type: client_credentials
+
+  resource: https://graph.microsoft.com/
+}
+
+tests {
+  bru.setEnvVar("TOKEN", res.getBody().access_token)
+  
+}

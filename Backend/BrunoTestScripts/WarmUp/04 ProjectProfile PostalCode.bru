@@ -1,0 +1,21 @@
+meta {
+  name: 04 ProjectProfile PostalCode
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/data-science/postal-code/validate?postalCode=07080
+  body: none
+  auth: inherit
+}
+
+params:query {
+  postalCode: 07080
+}
+
+tests {
+  test("Status is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

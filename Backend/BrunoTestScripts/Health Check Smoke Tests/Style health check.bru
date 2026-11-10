@@ -1,0 +1,21 @@
+meta {
+  name: Style health check
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/style/v1/HealthCheck
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: text/plain
+}
+
+tests {
+  test("GET Style Health Check to have a 200 status response", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

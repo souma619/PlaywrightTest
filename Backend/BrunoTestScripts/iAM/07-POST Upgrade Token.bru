@@ -1,0 +1,15 @@
+meta {
+  name: 07-POST Upgrade Token
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{BASEURL}}/user/api/Session/upgrade
+  body: json
+  auth: none
+}
+
+body:json {
+  {"IdToken":"{{idToken}}"}
+}

@@ -1,0 +1,28 @@
+meta {
+  name: 17-POST Mgrate Graphql user
+  type: http
+  seq: 18
+}
+
+post {
+  url: https://api.low.digitalmbd.net/dev/user/migrate-graph-ql-users?dryRun=true
+  body: json
+  auth: bearer
+}
+
+params:query {
+  dryRun: true
+}
+
+headers {
+  Accept: text/plain
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+body:json {
+  "string"
+}

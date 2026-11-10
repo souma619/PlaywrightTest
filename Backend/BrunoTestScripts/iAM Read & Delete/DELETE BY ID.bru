@@ -1,0 +1,15 @@
+meta {
+  name: DELETE BY ID
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{AUDIENCE}}users/{{USER_ID}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}

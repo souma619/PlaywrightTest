@@ -1,0 +1,20 @@
+meta {
+  name: Get eric-pope-tester-gmail-com
+  type: http
+  seq: 5
+}
+
+get {
+  url: https://graph.microsoft.com/v1.0/users?$select=id&$filter=otherMails/any(c:c eq 'eric.pope.tester@gmail.com')
+  body: none
+  auth: bearer
+}
+
+params:query {
+  $select: id
+  $filter: otherMails/any(c:c eq 'eric.pope.tester@gmail.com')
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}

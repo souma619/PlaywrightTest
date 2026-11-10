@@ -1,0 +1,15 @@
+meta {
+  name: 08-POST Session Logout
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{BASEURL}}/user/api/Session/logout
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}

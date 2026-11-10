@@ -1,0 +1,67 @@
+meta {
+  name: UPDATE Design Results Interview API
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{BaseURL}}/interview/v1/interviews/a95d9c39-7d86-450f-937c-ec78b2f58b07/Responses?optionalProjectId={{PROJECTID}}
+  body: json
+  auth: none
+}
+
+params:query {
+  optionalProjectId: {{PROJECTID}}
+}
+
+body:json {
+  {
+    "id": "a95d9c39-7d86-450f-937c-ec78b2f58b07",
+    "questions": {
+      "121e0189-ab51-4e07-b9b5-9c399825fc46": {
+        "answers": {
+          "3dfe09a4-a0a7-45c1-a1fe-199bc2cdb63c": true,
+          "8a0f4bf6-124f-427d-9bc1-77ec2336d0a5": false,
+          "1b7a622c-acd2-4bca-a4e5-c9bfa119fbb7": false
+        }
+      },
+      "5cd2bc64-cc7b-4765-8cf1-699af30b9272": {
+        "answers": {
+          "8461d53d-544c-4291-ad4a-12cea88e3704": false,
+          "74b76091-667b-4e78-9d6e-6dbf975f4644": true,
+          "072510ea-9f65-49d6-9698-66f8a1891365": false
+        }
+      },
+      "22faaee1-4589-4277-a954-1bee880f31cb": {
+        "answers": {
+          "0274a766-e67b-4f86-be6e-2c41ed554040": true,
+          "4581b231-942a-4f56-ba54-54555e6b6d68": false,
+          "dee5e2bb-ff1e-4cdd-87e1-6ff18d5c1997": false,
+          "b6e50bd1-c44a-427e-9f29-bdbd65250959": false,
+          "45440a37-ebe5-4b9f-a30c-db5e29a8ebcc": false,
+          "91fd540c-fa8d-4425-aa34-ec04fa6ef4f3": false
+        }
+      },
+      "37424a8b-9cb4-419a-ae2f-01407452e67d": {
+        "answers": {
+          "9af4c877-0f0a-4710-99ff-331b9d83cbd7": true,
+          "31b67937-dd00-4dba-acf4-695a91ee1baa": false,
+          "5ea65a7e-c73e-4190-8a00-d66a09373f2f": false
+        }
+      }
+    },
+    "skipped": false,
+    "completed": true,
+    "completedOn": "2026-01-13T14:36:37.992Z"
+  }
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("UPDATE Design Results Interview API", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

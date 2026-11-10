@@ -1,0 +1,20 @@
+meta {
+  name: 12-POST auth0-webhook
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{BASEURL}}/user/auth0-webhook
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+tests {
+  bru.setEnvVar("TOKEN", res.getBody().token)
+  
+}

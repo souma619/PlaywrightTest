@@ -1,0 +1,21 @@
+meta {
+  name: Project Profile health check
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/projectprofile/v1/HealthCheck
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: text/plain
+}
+
+tests {
+  test("GET Project Profile Health Check to have a 200 status response", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

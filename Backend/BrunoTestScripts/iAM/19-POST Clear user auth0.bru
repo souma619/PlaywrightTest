@@ -1,0 +1,24 @@
+meta {
+  name: 19-POST Clear user auth0
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{BASEURL}}/user/clear-users-from-auth0?accessToken={{TOKEN}}&dryRun=true
+  body: none
+  auth: bearer
+}
+
+params:query {
+  accessToken: {{TOKEN}}
+  dryRun: true
+}
+
+headers {
+  Accept: text/plain
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}

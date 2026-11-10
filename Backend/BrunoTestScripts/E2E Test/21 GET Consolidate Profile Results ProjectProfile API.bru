@@ -1,0 +1,63 @@
+meta {
+  name: 21 GET Consolidate Profile Results ProjectProfile API
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{PROJECTID}}
+  body: json
+  auth: none
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("GET Consolidate Profile Results ProjectProfile API", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+  
+  test("Response contains main identifiers", () => {
+      expect(res.body).to.have.property("id");
+      expect(res.body).to.have.property("userId");
+      expect(res.body).to.have.property("profileContentType");
+    });
+  
+    test("Profile section contains remodel completion and selections", () => {
+      const profile = res.body.profile;
+      expect(profile).to.have.property("remodelProfileCompleted", true);
+      expect(profile).to.have.property("selectedStyle");
+      expect(profile).to.have.property("selectedArchetype");
+      expect(profile).to.have.property("selectedCabinets");
+    });
+  
+    test("Interviews contain expected sections with completion status", () => {
+      const interviews = res.body.interviews;
+      expect(interviews).to.have.property("icebreaker");
+      expect(interviews.icebreaker).to.have.property("isCompleted");
+      expect(interviews).to.have.property("stylePersonality");
+      expect(interviews.stylePersonality).to.have.property("isCompleted");
+    });
+  
+    test("Feedback section exists and has default values", () => {
+      const feedback = res.body.feedback;
+      expect(feedback).to.have.property("id");
+      expect(feedback).to.have.property("rating", 0);
+      expect(feedback).to.have.property("comment", null);
+    });
+  
+    test("Timestamps are present for profile completion and last modification", () => {
+      expect(res.body).to.have.property("created");
+      expect(res.body).to.have.property("lastModified");
+      expect(res.body).to.have.property("profileCompletedOnUtc");
+    });
+  
+    test("Dealer shares array exists", () => {
+      expect(res.body).to.have.property("dealerShares");
+      expect(res.body.dealerShares).to.be.an("array");
+    });
+  
+  
+}

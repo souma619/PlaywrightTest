@@ -1,0 +1,40 @@
+meta {
+  name: 11 GET Design Results Interview API
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{BaseURL}}/interview/v1/interviews/a95d9c39-7d86-450f-937c-ec78b2f58b07/Responses?optionalProjectId={{PROJECTID}}
+  body: none
+  auth: none
+}
+
+params:query {
+  optionalProjectId: {{PROJECTID}}
+}
+
+body:json {
+  {
+    "id": "0de0259b-7d7f-4672-b6e0-5028da323871",
+    "questions": {
+      "21abf250-d0ca-4094-a084-eee211b7104d": {
+        "answers": {
+          "876b6afd-6d72-4d25-8c59-b9367bed9118": false,
+          "726c32fb-63cf-4a1b-b147-decc7923ca7b": true,
+          "743e9995-fd59-4976-884c-f93fbcec668e": false
+        }
+      }
+    }
+  }
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("GET Design Results Interview API", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

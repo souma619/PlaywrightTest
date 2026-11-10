@@ -1,0 +1,16 @@
+meta {
+  name: 06-POST Refresh Token
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{BASEURL}}/user/api/Session/refresh
+  body: none
+  auth: none
+}
+
+tests {
+  bru.setEnvVar("TOKEN", res.getBody().token)
+  
+}

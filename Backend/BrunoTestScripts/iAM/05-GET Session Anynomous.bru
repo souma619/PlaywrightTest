@@ -1,0 +1,25 @@
+meta {
+  name: 05-GET Session Anynomous
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{BASEURL}}/user/api/Session/anonymous
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+tests {
+  bru.setEnvVar("NEWPROJECTID", res.getBody().projectId)
+  test("Status is 201", () => {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  bru.setEnvVar("TOKEN", res.getBody().token)
+  
+}

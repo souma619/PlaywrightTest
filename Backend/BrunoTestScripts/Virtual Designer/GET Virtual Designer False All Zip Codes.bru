@@ -1,0 +1,129 @@
+meta {
+  name: GET Virtual Designer False All Zip Codes
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/data-science/postal-code/validate?postalCode={{ZIP_CODE_F}}&projectId={{NEWPROJECTID}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  postalCode: {{ZIP_CODE_F}}
+  projectId: {{NEWPROJECTID}}
+}
+
+script:pre-request {
+  // Get ZIP codes from environment variable
+  const zipCodesStrF = bru.getEnvVar("zipCodes");
+  
+  // Fallback: if not in env, define inline
+  const zipCodesF = zipCodesStrF ? JSON.parse(zipCodesStrF) : [
+    // Map ZIP codes
+    "02018","07080","11716","11718","11719"
+  ];
+  
+  const currentRunF = bru.getVar("runCountF") || 0;
+  
+  if (currentRunF < zipCodesF.length) {
+      bru.setVar("ZIP_CODE_F", zipCodesF[currentRunF]);
+      console.log(`✓ Using ZIP Code: ${zipCodesF[currentRunF]} (Run ${currentRunF + 1}/${zipCodesF.length})`);
+  } else {
+      console.log("✅ All ZIP codes completed!");
+  }
+}
+
+script:post-response {
+  // Array of ZIP codes (same as Pre-Request)
+  const zipCodesF = [
+    // Map ZIP codes
+    "02018","07080","11716","11718","11719"
+  ];
+  
+  // Get current run number
+  const currentRunF = bru.getVar("runCountF") || 0;
+  const nextRun = currentRunF + 1;
+  
+  // Update run counter
+  bru.setVar("runCountF", nextRun);
+  
+  // Check if more iterations needed
+  if (nextRun < zipCodesF.length) {
+      console.log(`→ Triggering iteration ${nextRun + 1}/${zipCodesF.length}...`);
+      
+      // Trigger next request after a small delay
+      setTimeout(() => {
+          bru.runRequest("GET Virtual Designer False All Zip Codes");
+      }, 2500);
+  } else {
+      console.log("🎉 All iterations completed!");
+      bru.setVar("runCountF", 0); // Reset counter
+  }
+}
+
+tests {
+  const requestedZip = bru.getVar("ZIP_CODE_F");
+  const currentRun = bru.getVar("runCountF") || 0;
+  
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`🧪 TESTING ZIP CODE: ${requestedZip} (Run ${currentRun + 1}/283)`);
+  console.log(`${"=".repeat(60)}\n`);
+  
+  // Test 1: Status code is 200
+  test("Status code is 200", () => {
+      const statusCode = res.getStatus();
+      console.log(`📋 Test 1: Status Code Validation`);
+      console.log(`   ├─ Expected: 200`);
+      console.log(`   ├─ Received: ${statusCode}`);
+      console.log(`   └─ Result: ${statusCode === 200 ? '✅ PASS' : '❌ FAIL'}`);
+      
+      expect(statusCode).to.equal(200);
+  });
+  
+  // Test 2: Response contains the ZIP code that was sent in the request
+  test("Response contains the requested ZIP code", () => {
+      console.log(`\n📋 Test 2: ZIP Code Validation`);
+      
+      const responseData = res.getBody();
+      
+      console.log(`   ├─ Requested ZIP: ${requestedZip}`);
+      console.log(`   ├─ Response Type: ${Array.isArray(responseData) ? 'Array' : typeof responseData}`);
+      console.log(`   ├─ Response Length: ${responseData.length}`);
+      
+      // Check if response is an array and has at least one item
+      expect(responseData).to.be.an('array');
+      expect(responseData.length).to.be.greaterThan(0);
+      
+      // Check if project_zipcode matches the requested ZIP
+      const projectZip = responseData[0].project_zipcode;
+      const dealerName = responseData[0].dealer_name || 'N/A';
+      
+      console.log(`   ├─ Response ZIP: ${projectZip}`);
+      console.log(`   ├─ Dealer Name: ${dealerName}`);
+      console.log(`   ├─ Match: ${projectZip === requestedZip ? 'Yes' : 'No'}`);
+      console.log(`   └─ Result: ${projectZip === requestedZip ? '✅ PASS' : '❌ FAIL'}`);
+      
+      expect(projectZip).to.equal(bru.getVar("ZIP_CODE_F"));
+  });
+  
+  // Test 3: is_virtual_designer is false
+  test("is_virtual_designer is false", () => {
+      console.log(`\n📋 Test 3: Virtual Designer Flag Validation`);
+      
+      const responseData = res.getBody();
+      const isVirtualDesigner = responseData[0].is_virtual_designer;
+      
+      console.log(`   ├─ Expected: false`);
+      console.log(`   ├─ Received: ${isVirtualDesigner}`);
+      console.log(`   ├─ Type: ${typeof isVirtualDesigner}`);
+      console.log(`   └─ Result: ${isVirtualDesigner === false ? '✅ PASS' : '❌ FAIL'}`);
+      
+      expect(isVirtualDesigner).to.equal(false);
+  });
+  
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`✅ ALL TESTS PASSED FOR ZIP: ${requestedZip}`);
+  console.log(`${"=".repeat(60)}\n`);
+}

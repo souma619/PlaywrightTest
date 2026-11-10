@@ -1,0 +1,21 @@
+meta {
+  name: GET Ice Breaker Results Interview API
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BaseURL}}/interview/v1/interviews/2ef6204a-8e1d-48aa-b7fb-01416a57f276/Responses?optionalProjectId={{PROJECTID}}
+  body: none
+  auth: none
+}
+
+params:query {
+  optionalProjectId: {{PROJECTID}}
+}
+
+tests {
+  test("GET Ice Breaker Results Interview API", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

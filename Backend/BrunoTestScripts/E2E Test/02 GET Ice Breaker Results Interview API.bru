@@ -1,0 +1,43 @@
+meta {
+  name: 02 GET Ice Breaker Results Interview API
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BaseURL}}/interview/v1/interviews/2ef6204a-8e1d-48aa-b7fb-01416a57f276/Responses?optionalProjectId={{PROJECTID}}
+  body: none
+  auth: none
+}
+
+params:query {
+  optionalProjectId: {{PROJECTID}}
+}
+
+tests {
+  // Status test (your existing test)
+  test("GET Ice Breaker Results Interview API", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+   
+  // Individual question ID tests
+  test("Question ID 50b3b6f3-f4dd-4d11-bfd0-c93996e5cc18 should be present", () => {
+    expect(res.body.questions).to.have.property("50b3b6f3-f4dd-4d11-bfd0-c93996e5cc18");
+  });
+   
+  test("Question ID 213db880-1284-46d7-999b-264822c31274 should be present", () => {
+    expect(res.body.questions).to.have.property("213db880-1284-46d7-999b-264822c31274");
+  });
+   
+  test("Question ID 480cd365-5c86-451a-9f65-0b9e0a341753 should be present", () => {
+    expect(res.body.questions).to.have.property("480cd365-5c86-451a-9f65-0b9e0a341753");
+  });
+   
+  test("Question ID dc82a239-1eb0-4c2e-a500-703e60b34892 should be present", () => {
+    expect(res.body.questions).to.have.property("dc82a239-1eb0-4c2e-a500-703e60b34892");
+  });
+   
+  test("Question ID f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62 should be present", () => {
+    expect(res.body.questions).to.have.property("f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62");
+  });
+}

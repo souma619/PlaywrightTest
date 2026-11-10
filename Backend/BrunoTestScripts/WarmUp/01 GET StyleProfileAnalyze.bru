@@ -1,0 +1,25 @@
+meta {
+  name: 01 GET StyleProfileAnalyze
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{BaseURL}}/style/v1/StyleProfile/Analyze?image={{EncodedImageURL}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  image: {{EncodedImageURL}}
+}
+
+body:multipart-form {
+  : @file()
+}
+
+tests {
+  test("Status is 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

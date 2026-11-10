@@ -1,0 +1,46 @@
+meta {
+  name: Add User
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://graph.microsoft.com/v1.0/users
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  ~Authorization: 
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+body:json {
+  {
+      "displayName": "test_user1",
+      "givenName": "Test",
+      "surname": "Rebode_test",
+      "postalCode": "02018",
+      "identities": [
+          {
+              "signInType": "emailAddress",
+              "issuer": "masterbrandadb2c.onmicrosoft.com",
+              "issuerAssignedId": "eric.pope.tester+postmantest@gmail.com"
+          }
+      ],
+      "otherMails": [
+          "testuser@masterbrand.com"
+      ],    
+      "passwordProfile": {
+          "password": "qwer-1234",
+          "forceChangePasswordNextSignIn": false
+      },
+      "passwordPolicies": "DisablePasswordExpiration",
+      "extension_90990c67bdf64febbc10a5df4945246e_ProjectId": "11111111-1111-1111-1111-111111111111",
+      "extension_90990c67bdf64febbc10a5df4945246e_Environment": "DEV"
+  }
+}

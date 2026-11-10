@@ -1,0 +1,15 @@
+meta {
+  name: GET By ID
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{AUDIENCE}}users/{{USER_ID}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}

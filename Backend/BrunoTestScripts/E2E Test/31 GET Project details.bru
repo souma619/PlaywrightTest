@@ -1,0 +1,121 @@
+meta {
+  name: 31 GET Project details
+  type: http
+  seq: 31
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{NEWPROJECTID}}
+  body: json
+  auth: inherit
+}
+
+tests {
+  test("GET Project details", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+  const body = res.getBody();
+  test("id exists", () => {
+      expect(body.id).to.exist;
+  });
+  
+  
+  test("interviews exists", () => {
+      expect(body.interviews).to.exist;
+  });
+  
+  test("profileContentType exists", () => {
+      expect(body.profileContentType).to.exist;
+  });
+  
+  test("profile exists", () => {
+      expect(body.profile).to.exist;
+  });
+  
+  test("created exists", () => {
+      expect(body.created).to.exist;
+  });
+  
+  test("lastModified exists", () => {
+      expect(body.lastModified).to.exist;
+  });
+  
+  test("feedback exists", () => {
+      expect(body.feedback).to.exist;
+  });
+  
+  test("dealerShares exists", () => {
+      expect(body.dealerShares).to.exist;
+  });
+  
+  test("showroomMatchType exists", () => {
+      expect(body.showroomMatchType).to.exist;
+  });
+  
+  const iv = body.interviews;
+  
+  [
+      "icebreaker",
+      "styleProfileFavorites",
+      "designIntro",
+      "designActivities",
+      "storageSolutionFavorites",
+      "designCabinetTypes",
+      "budget"
+  ].forEach(key => {
+  
+      test(`${key} exists`, () => {
+          expect(iv[key]).to.exist;
+      });
+  
+      test(`${key}.id exists`, () => {
+          expect(iv[key].id).to.exist;
+      });
+  
+      test(`${key}.isCompleted exists`, () => {
+          expect(iv[key].isCompleted).to.exist;
+      });
+  
+      test(`${key}.completedOn exists`, () => {
+          expect(iv[key].completedOn).to.exist;
+      });
+  
+  });
+  
+  
+  test("profile.lastVisitedPath exists", () => {
+      expect(body.profile.lastVisitedPath).to.exist;
+  });
+  
+  test("profile.remodelProfileCompleted exists", () => {
+      expect(body.profile.remodelProfileCompleted).to.exist;
+  });
+  
+  test("profile.selectedStyle exists", () => {
+      expect(body.profile.selectedStyle).to.exist;
+  });
+  
+  test("profile.selectedArchetype exists", () => {
+      expect(body.profile.selectedArchetype).to.exist;
+  });
+  
+  test("profile.selectedCabinets exists", () => {
+      expect(body.profile.selectedCabinets).to.exist;
+  });
+  
+  
+  test("feedback.id exists", () => {
+      expect(body.feedback.id).to.exist;
+  });
+  
+  test("feedback.projectId exists", () => {
+      expect(body.feedback.projectId).to.exist;
+  });
+  
+  test("feedback.rating exists", () => {
+      expect(body.feedback.rating).to.exist;
+  });
+  
+  
+  
+}

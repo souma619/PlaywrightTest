@@ -1,0 +1,107 @@
+meta {
+  name: 15 GET Budget Results Starting Interview API
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{BaseURL}}/interview/v1//interview/interview__starting_budget/content/{{PROJECTID}}
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "id": "dbbc27d3-ca70-4dfc-b25c-fa2001a984a0",
+    "questions": {
+      "ebdd265b-ee5c-41ed-9548-2d36069e142a": {
+        "answers": {
+          "194f92a8-3ecf-4647-85d8-228beb1d5ddf": 90000,
+          "63d0df81-02dc-4513-b34c-d49407a8eaae": "02018"
+        }
+      },
+      "1ca9313a-f930-4ff1-aa45-6e7d15ece450": {
+        "answers": {
+          "80b47852-d721-4fc3-9741-cddaefdafce1": 6930,
+          "34cc5f62-817b-4a01-94ff-bd8d5605e582": 13230
+        }
+      }
+    }
+  }
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("GET Interview Starting Budget API should return 200", () => {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Root-level fields
+  test("Codename should be interview__starting_budget", () => {
+    expect(res.body.codename).to.equal("interview__starting_budget");
+  });
+  
+  test("Interview should be completed", () => {
+    expect(res.body.completed).to.equal(true);
+  });
+  
+  test("Interview should not be skipped", () => {
+    expect(res.body.skipped).to.equal(false);
+  });
+  
+  test("CompletedOn should be present", () => {
+    expect(res.body.completedOn).to.not.be.empty;
+  });
+  
+  // Questions array validation
+  test("Questions array should exist", () => {
+    expect(res.body.questions).to.be.an("array");
+  });
+  
+  test("Questions array should have 3 items", () => {
+    expect(res.body.questions.length).to.equal(3);
+  });
+  
+  // Question 1 validations
+  test("Question 1 codename should be budget_category__starting", () => {
+    expect(res.body.questions[0].codename).to.equal("budget_category__starting");
+  });
+  
+  test("Question 1 selection should be premium", () => {
+    expect(res.body.questions[0].selection).to.equal("premium");
+  });
+  
+  test("Question 1 should be included", () => {
+    expect(res.body.questions[0].included).to.equal(true);
+  });
+  
+  // Question 2 validations
+  test("Question 2 codename should be interview__starting_budget___method", () => {
+    expect(res.body.questions[1].codename).to.equal("interview__starting_budget___method");
+  });
+  
+  test("Question 2 selection should be zipcode", () => {
+    expect(res.body.questions[1].selection).to.equal("zipcode");
+  });
+  
+  test("Question 2 should be included", () => {
+    expect(res.body.questions[1].included).to.equal(true);
+  });
+  
+  // Question 3 validations
+  test("Question 3 codename should be interview__starting_budget___zip_code", () => {
+    expect(res.body.questions[2].codename).to.equal("interview__starting_budget___zip_code");
+  });
+  
+  test("Question 3 selection should be empty", () => {
+    expect(res.body.questions[2].selection).to.equal("");
+  });
+  
+  test("Question 3 should be included", () => {
+    expect(res.body.questions[2].included).to.equal(true);
+  });
+  
+}

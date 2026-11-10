@@ -1,0 +1,141 @@
+meta {
+  name: 20 UPDATE Consolidate Profile Results ProjectProfile API
+  type: http
+  seq: 20
+}
+
+put {
+  url: {{BaseURL}}/projectprofile/v1/projects/{{PROJECTID}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id": "{{PROJECTID}}",
+    "userId": "0db32449-89df-4fff-955b-39b033cbf80b",
+    "interviews": {
+      "icebreaker": {
+        "id": "2ef6204a-8e1d-48aa-b7fb-01416a57f276",
+        "isCompleted": true,
+        "completedOn": "2025-11-18T11:48:35.324+00:00"
+      },
+      "stylePersonality": {
+        "id": "9e5150f7-2483-4f85-a784-789297e4c9bb",
+        "isCompleted": false,
+        "completedOn": null
+      },
+      "styleFinder": {
+        "id": "313bac32-57eb-4f84-b33a-eed36f8fbe97",
+        "isCompleted": true,
+        "completedOn": "2025-11-18T14:54:56.123+00:00"
+      },
+      "styleImageAnalyzer": {
+        "id": "810a20cf-3e2e-4235-a579-9e12d003e194",
+        "isCompleted": false,
+        "completedOn": null
+      },
+      "styleTuner": {
+        "id": "ce55b620-5f03-40e3-aa75-3b7de4899fc6",
+        "isCompleted": true,
+        "completedOn": "2025-11-18T18:35:39.432+00:00"
+      },
+      "styleProfileFavorites": {
+        "id": "4077db96-f7a4-4730-9ceb-e73012db9b79",
+        "isCompleted": false,
+        "completedOn": null
+      },
+      "designIntro": {
+        "id": "a95d9c39-7d86-450f-937c-ec78b2f58b07",
+        "isCompleted": true,
+        "completedOn": "2025-11-18T18:36:37.52+00:00"
+      },
+      "designActivities": {
+        "id": "64155f03-1e5c-45e6-9438-c42976807add",
+        "isCompleted": true,
+        "completedOn": "2025-11-18T18:36:50.856+00:00"
+      },
+      "storageSolutionFavorites": {
+        "id": "dd442368-98b3-4aa3-b2e3-5e666e441f07",
+        "isCompleted": true,
+        "completedOn": "2025-11-18T18:38:04.807+00:00"
+      },
+      "designCabinetTypes": {
+        "id": "0de0259b-7d7f-4672-b6e0-5028da323871",
+        "isCompleted": true,
+        "completedOn": "2025-11-18T18:38:19.429+00:00"
+      },
+      "budget": {
+        "id": "dbbc27d3-ca70-4dfc-b25c-fa2001a984a0",
+        "isCompleted": true,
+        "completedOn": "2025-11-18T18:41:06.998+00:00"
+      }
+    },
+    "profileContentType": "application/json",
+    "profile": {
+      "remodelProfileCompleted": true,
+      "lastVisitedPath": "/remodel/profile/overview",
+      "selectedStyle": "4077db96-f7a4-4730-9ceb-e73012db9b79",
+      "selectedArchetype": "d2cb04f9-7b5e-4a41-bd94-9f194072b0f3",
+      "selectedCabinets": "Semi-custom cabinets",
+      "budgetSkipped": false
+    },
+    "notes": {
+      "styleNote": "",
+      "designNote": ""
+    },
+    "uploads": null,
+    "metadata": null,
+    "created": "2025-11-18T11:47:51.1969665+00:00",
+    "lastModified": "2025-11-18T18:41:08.1615656+00:00",
+    "feedback": {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "projectId": "ddf20f39-45fa-4e67-a90b-08dd664b9c51",
+      "rating": 0,
+      "comment": null,
+      "created": null
+    },
+    "dealerShares": [
+      {
+        "projectId": "ddf20f39-45fa-4e67-a90b-08dd664b9c51",
+        "dealerId": "27568",
+        "correlationId": "3046ac07-e612-49fa-901b-db554cc704c7",
+        "queuePayload": "{\"TargetFileUrl\":null,\"UserId\":\"0db32449-89df-4fff-955b-39b033cbf80b\",\"ProjectId\":\"ddf20f39-45fa-4e67-a90b-08dd664b9c51\",\"FirstName\":\"S\",\"LastName\":\"Buat1911202501\",\"Email\":\"soumabha.bhandari.mbd01\\u002Buat1911202501@gmail.com\",\"Phone\":\"(555)555-5501\",\"PreferredContactTime\":\"morning\",\"ProjectCity\":\"Accord\",\"ProjectState\":\"MA\",\"ProjectZipCode\":\"02018\",\"ProjectCountry\":\"US\",\"Brands\":[\"Mantra\",\"Omega\",\"Schrock\"],\"DealerDistance\":5.38798,\"DealerId\":\"27568\",\"DealerName\":\"cape cod lumber corp cape\",\"DealerEmail\":\"sharris@cclco.com\",\"DealerAddressId\":\"27568\",\"MobilePhone\":\"9999999990\",\"InitialBrand\":\"Mantra\"}",
+        "status": "Processing",
+        "userId": null,
+        "userEmail": null,
+        "dealerAddressId": "27568",
+        "dealerEmail": "sharris@cclco.com",
+        "projectPostalCode": "02018",
+        "remodelPdfUri": "https://js-blob-uat-westus2-fqdecjcwf0d4e5dz.a02.azurefd.net/crm-external/0b136d5d-e45c-48e2-b382-8d0fd49ed4e0.pdf?sp=r&st=2024-12-04T22:50:28Z&se=2124-12-05T06:50:28Z&spr=https&sv=2022-11-02&sr=c&sig=T0%2FstDq2AjdxPecQrLgHRERViyGtxsuqXys46E4xnfU%3D",
+        "salesforcePayload": null,
+        "salesforceWebFormUploadUtc": null,
+        "isAutoShared": true,
+        "isRebodeMatch": false,
+        "isVirtualDesigner": false,
+        "appointmentStatus": "None",
+        "appointmentDateTime": null,
+        "shareIdentity": "Location Share",
+        "pointInTimeState": "{\r\n \"projectId\": \"ddf20f39-45fa-4e67-a90b-08dd664b9c51\",\r\n \"requestUserId\": \"0db32449-89df-4fff-955b-39b033cbf80b\"\r\n, \"id\": \"ddf20f39-45fa-4e67-a90b-08dd664b9c51\"\r\n, \"userId\": \"0db32449-89df-4fff-955b-39b033cbf80b\"\r\n, \"profileContentType\": \"application/json\"\r\n, \"uploads\": \"\"\r\n, \"metadata\": \"\"\r\n, \"created\": \"2025-11-18T11:47:51.1969665+00:00\"\r\n, \"lastModified\": \"2025-11-18T18:40:54.6100101+00:00\"\r\n, \"flowId\": \"00000000-0000-0000-0000-000000000000\"\r\n, \"visualizerServiceEmailSentOn\": \"\"\r\n, \"matchmakerReadyOnUtc\": \"\"\r\n, \"profileCompletedOnUtc\": \"2025-11-18T18:40:54.5099122+00:00\"\r\n, \"showroomCode\": \"\"\r\n, \"showroomMatchType\": \"Unrestricted\"\r\n, \"showroomAssigned\": \"\"\r\n, \"QuestionAnswerCount_00000000000000000000000000000022\": -1\r\n, \"QuestionAnswerSelectedCount_00000000000000000000000000000022\": -1\r\n, \"QuestionAnswerUnselectedNoWhitespaceTextCount_00000000000000000000000000000022\": -1\r\n, \"QuestionAnswerUnselectedWhitespaceTextCount_00000000000000000000000000000022\": -1\r\n, \"InterviewCompleted_2ef6204a8e1d48aab7fb01416a57f276\": 1\r\n, \"InterviewSkipped_2ef6204a8e1d48aab7fb01416a57f276\": 0\r\n, \"InterviewCompleted_474101f4b6214d3ca56e0b25ef120dac\": 0\r\n, \"InterviewSkipped_474101f4b6214d3ca56e0b25ef120dac\": 0\r\n, \"InterviewCompleted_ce55b6205f0340e3aa753b7de4899fc6\": 1\r\n, \"InterviewSkipped_ce55b6205f0340e3aa753b7de4899fc6\": 0\r\n, \"InterviewCompleted_0de0259b7d7f4672b6e05028da323871\": 1\r\n, \"InterviewSkipped_0de0259b7d7f4672b6e05028da323871\": 0\r\n, \"InterviewCompleted_a08b8db7811141fbadac59ecf1bbccf7\": 0\r\n, \"InterviewSkipped_a08b8db7811141fbadac59ecf1bbccf7\": 0\r\n, \"InterviewCompleted_dd44236898b34aa3b2e35e666e441f07\": 1\r\n, \"InterviewSkipped_dd44236898b34aa3b2e35e666e441f07\": 0\r\n, \"InterviewCompleted_9e5150f724834f85a784789297e4c9bb\": 0\r\n, \"InterviewSkipped_9e5150f724834f85a784789297e4c9bb\": 0\r\n, \"InterviewCompleted_64155f031e5c45e69438c42976807add\": 1\r\n, \"InterviewSkipped_64155f031e5c45e69438c42976807add\": 0\r\n, \"InterviewCompleted_4077db96f7a447309cebe73012db9b79\": 0\r\n, \"InterviewSkipped_4077db96f7a447309cebe73012db9b79\": 0\r\n, \"InterviewCompleted_a95d9c397d86450f937cec78b2f58b07\": 1\r\n, \"InterviewSkipped_a95d9c397d86450f937cec78b2f58b07\": 0\r\n, \"InterviewCompleted_313bac3257eb4f84b33aeed36f8fbe97\": 0\r\n, \"InterviewSkipped_313bac3257eb4f84b33aeed36f8fbe97\": 0\r\n, \"InterviewCompleted_dbbc27d3ca704dfcb25cfa2001a984a0\": 0\r\n, \"InterviewSkipped_dbbc27d3ca704dfcb25cfa2001a984a0\": 0\r\n}\r\n",
+        "redactedOn": null
+      }
+    ],
+    "flowId": "00000000-0000-0000-0000-000000000000",
+    "visualizerServiceEmailSentOn": null,
+    "matchmakerReadyOnUtc": null,
+    "profileCompletedOnUtc": "2025-11-18T18:41:08.1456892+00:00",
+    "showroomCode": null,
+    "showroomMatchType": "Unrestricted",
+    "showroomAssigned": null
+  }
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("UPDATE Consolidate Profile Results ProjectProfile API", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

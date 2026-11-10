@@ -1,0 +1,30 @@
+meta {
+  name: JumpStarter GET AutoShare
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{BASEURL}}/projectprofile/v1/projects/{{NEWPROJECTID}}/shared-with-dealer
+  body: json
+  auth: inherit
+}
+
+headers {
+  accept: text/plain
+  Content-Type: application/json-patch+json
+}
+
+assert {
+  isShared: isNotEmpty
+  sharedOn: isNotEmpty
+}
+
+tests {
+  test("Response body should contain isShared value as true", function(){
+  var isShared =res.getBody().isShared;
+  expect(isShared).to.equal(true);
+  var sharedOn =res.getBody().sharedOn;
+  expect(sharedOn).to.not.be.null;
+  });
+}

@@ -1,0 +1,73 @@
+meta {
+  name: 16 UPDATE Budget Results Categories Interview API
+  type: http
+  seq: 16
+}
+
+put {
+  url: {{BaseURL}}/interview/v1/interview/content/{{PROJECTID}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "codename": "interview__itemized_budget",
+    "questions": [
+      {
+        "contentId": "{{PROJECTID}}",
+        "codename": "budget_category__cabinets_storage",
+        "selection": "premium",
+        "included": true
+      },
+      {
+        "contentId": "19907e26-a78b-4650-b773-78eafb43fec4",
+        "codename": "budget_category__countertops",
+        "selection": "premium",
+        "included": true
+      },
+      {
+        "contentId": "376d61c1-a8a1-4521-898d-710e0348d27a",
+        "codename": "budget_category__appliances",
+        "selection": "premium",
+        "included": true
+      },
+      {
+        "contentId": "fd2d463a-4eda-4a4d-8892-c680d3a8c8d1",
+        "codename": "budget_category__plumbing_fixtures",
+        "selection": "premium",
+        "included": true
+      },
+      {
+        "contentId": "8dfca6b3-d61f-4dec-a88c-3ca2ab31c25e",
+        "codename": "budget_category__flooring",
+        "selection": "premium",
+        "included": true
+      },
+      {
+        "contentId": "7da3da7c-72e8-49fc-b9ce-7ebfa76e6969",
+        "codename": "budget_category__lighting",
+        "selection": "premium",
+        "included": true
+      },
+      {
+        "contentId": "79ce8404-f9af-496d-97d2-6625704ece61",
+        "codename": "budget_category__labor",
+        "selection": "premium",
+        "included": true
+      }
+    ],
+    "completedOn": "2026-01-07T20:44:26.662Z",
+    "completed": true
+  }
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("UPDATE Budget Results Interview API", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

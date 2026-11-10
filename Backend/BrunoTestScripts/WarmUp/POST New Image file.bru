@@ -1,0 +1,37 @@
+meta {
+  name: POST New Image file
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{BaseURL}}/style/v1/Files
+  body: multipartForm
+  auth: inherit
+}
+
+body:form-urlencoded {
+  : 
+}
+
+body:multipart-form {
+  file: @file(kitchen2.jpg)
+}
+
+tests {
+  test("Status is 202", () => {
+    expect(res.getStatus()).to.equal(202);
+  });
+  
+  test("Extract file URL to env", () => {
+    const body = res.body;
+  
+    // Validate url exists
+    expect(body).to.have.property("url");
+  
+    // Save to environment variable
+    bru.setEnvVar("SetFIleNameURL", body.url);
+    const encodedUrl = encodeURIComponent(bru.getEnvVar("SetFIleNameURL"));
+    bru.setEnvVar("EncodedImageURL", encodedUrl);
+  });
+}

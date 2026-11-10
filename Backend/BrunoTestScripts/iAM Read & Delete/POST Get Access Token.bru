@@ -1,0 +1,35 @@
+meta {
+  name: POST Get Access Token
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{TOKEN_GENERATION_URL}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  content-type: application/json
+}
+
+body:json {
+  {
+    "client_id": "{{CLIENT_ID}}",
+    "client_secret": "{{CLIENT_SECRET}}",
+    "audience": "{{AUDIENCE}}",
+    "grant_type": "{{GRANT_TYPE}}"
+  }
+}
+
+script:post-response {
+  bru.setEnvVar("TOKEN", res.getBody().access_token)
+  
+}
+
+tests {
+  test("POST Get Access Token", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

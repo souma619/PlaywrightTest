@@ -1,0 +1,19 @@
+meta {
+  name: 16-DELETE User
+  type: http
+  seq: 17
+}
+
+delete {
+  url: {{BASEURL}}/user/{{userID}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  ~Authorization: 
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}

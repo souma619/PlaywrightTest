@@ -1,0 +1,16 @@
+meta {
+  name: JumpStarter GET Project details
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{BASEURL}}/projectprofile/v1/projects/{{NEWPROJECTID}}
+  body: json
+  auth: inherit
+}
+
+assert {
+  id: isNotEmpty
+  userId: isNotEmpty
+}

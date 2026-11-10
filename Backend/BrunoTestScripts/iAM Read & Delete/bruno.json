@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "iAM Read & Delete",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

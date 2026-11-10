@@ -1,0 +1,21 @@
+meta {
+  name: Design health check
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/design/v1/HealthCheck
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: text/plain
+}
+
+tests {
+  test("GET Design Health Check to have a 200 status response", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

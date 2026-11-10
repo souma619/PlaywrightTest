@@ -1,0 +1,21 @@
+meta {
+  name: CMS health check
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/cmsproxy/v1/HealthCheck
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: text/plain
+}
+
+tests {
+  test("GET CMS Proxy Health Check to have a 200 status response", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

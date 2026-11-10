@@ -1,0 +1,22 @@
+meta {
+  name: 02-POST Virtual Service Email
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{BASEURL}}/user/Emails/visualizer-service-email
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+tests {
+  bru.setEnvVar("NEWPROJECTID", res.getBody().id)
+  test("Status is 201", () => {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

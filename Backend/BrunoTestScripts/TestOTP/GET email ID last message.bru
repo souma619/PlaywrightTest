@@ -1,0 +1,43 @@
+meta {
+  name: GET email ID last message
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=1&q=newer_than:1d
+  body: none
+  auth: oauth2
+}
+
+params:query {
+  maxResults: 1
+  q: newer_than:1d
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://localhost
+  authorization_url: https://accounts.google.com/o/oauth2/v2/auth
+  access_token_url: https://oauth2.googleapis.com/token
+  refresh_token_url: 
+  client_id: 
+  client_secret: 
+  scope: https://www.googleapis.com/auth/gmail.readonly
+  state: 
+  pkce: true
+  credentials_placement: body
+  credentials_id: credentials
+  token_placement: header
+  token_header_prefix: Bearer
+  auto_fetch_token: true
+  auto_refresh_token: false
+}
+
+script:post-response {
+  const messageId = res.body.messages[0].id;
+  
+  bru.setEnvVar("messageID", messageId);
+  
+  console.log("Saved messageID:", messageId);
+}

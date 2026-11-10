@@ -1,0 +1,36 @@
+meta {
+  name: 15-PATCH User
+  type: http
+  seq: 16
+}
+
+patch {
+  url: {{BASEURL}}/user/{{userID}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+body:json {
+  {
+    "id": "9afaf9ef-3625-47b4-b77f-08de8c1ee580",
+    "createdUtc": "2026-03-27T18:12:34.8321921",
+    "updatedUtc": "2026-03-27T18:12:34.8490894",
+    "email": "soumabha.bhandari.mbd01+dev2703262342200@gmail.com",
+    "emailVerified": true,
+    "firstName": "S",
+    "lastName": "dev2503202601",
+    "displayName": "S D",
+    "avatar": "",
+    "postalCode": "28246",
+    "phoneNumber": "999999999",
+    "country": "string",
+    "externalId": "",
+    "status": "",
+    "projectId": "9afaf9ef-3625-47b4-b77f-08de8c1ee580",
+    "emailCampaign": true
+  }
+}

@@ -1,0 +1,111 @@
+meta {
+  name: GET Dealer ProjectProfile API
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BaseURL}}/projectprofile/v1/data-science/postal-code/validate?postalCode=02018&stockId=Semi-custom&maxDistance=25
+  body: none
+  auth: none
+}
+
+params:query {
+  postalCode: 02018
+  stockId: Semi-custom
+  maxDistance: 25
+}
+
+body:json {
+  {
+    "id": "ddf20f39-45fa-4e67-a90b-08dd664b9c51",
+    "userId": null,
+    "interviews": {
+      "icebreaker": {
+        "id": "2ef6204a-8e1d-48aa-b7fb-01416a57f276",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:36:14.429+00:00"
+      },
+      "stylePersonality": {
+        "id": "9e5150f7-2483-4f85-a784-789297e4c9bb",
+        "isCompleted": false,
+        "completedOn": null
+      },
+      "styleFinder": {
+        "id": "313bac32-57eb-4f84-b33a-eed36f8fbe97",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:45:58.355+00:00"
+      },
+      "styleImageAnalyzer": {
+        "id": "810a20cf-3e2e-4235-a579-9e12d003e194",
+        "isCompleted": false,
+        "completedOn": null
+      },
+      "styleProfileFavorites": {
+        "id": "4077db96-f7a4-4730-9ceb-e73012db9b79",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:46:24.41+00:00"
+      },
+      "designIntro": {
+        "id": "a95d9c39-7d86-450f-937c-ec78b2f58b07",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:55:02.972+00:00"
+      },
+      "designActivities": {
+        "id": "64155f03-1e5c-45e6-9438-c42976807add",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:55:26.524+00:00"
+      },
+      "storageSolutionFavorites": {
+        "id": "dd442368-98b3-4aa3-b2e3-5e666e441f07",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:55:35.535+00:00"
+      },
+      "designCabinetTypes": {
+        "id": "0de0259b-7d7f-4672-b6e0-5028da323871",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T08:55:48.233+00:00"
+      },
+      "budget": {
+        "id": "dbbc27d3-ca70-4dfc-b25c-fa2001a984a0",
+        "isCompleted": true,
+        "completedOn": "2025-03-25T09:06:12.157Z"
+      }
+    },
+    "profileContentType": "application/json",
+    "profile": {
+      "lastVisitedPath": "/budget",
+      "remodelProfileCompleted": false,
+      "selectedStyle": "4077db96-f7a4-4730-9ceb-e73012db9b79",
+      "selectedArchetype": "32e8f0a0-9441-4569-8a17-e3de34b27040",
+      "selectedCabinets": "Semi-custom cabinets"
+    },
+    "notes": {
+      "styleNote": "",
+      "designNote": ""
+    },
+    "uploads": null,
+    "metadata": null,
+    "created": "2025-03-24T16:32:48.4596265+00:00",
+    "lastModified": "2025-03-25T08:55:59.305257+00:00",
+    "feedback": {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "projectId": "ddf20f39-45fa-4e67-a90b-08dd664b9c51",
+      "rating": 0,
+      "comment": null,
+      "created": null
+    },
+    "dealerShare": null,
+    "flowId": null
+  }
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("GET Dealer Interview API", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

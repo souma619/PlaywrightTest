@@ -1,0 +1,24 @@
+meta {
+  name: JumpStarter POST AutoShare
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{BASEURL}}/projectprofile/v1/projects/{{NEWPROJECTID}}/automatic-dealer-share
+  body: json
+  auth: inherit
+}
+
+headers {
+  accept: text/plain
+  Content-Type: application/json-patch+json
+}
+
+body:json {
+  {
+    "userId": "{{USERID}}",
+    "identifier": "string",
+    "pointInTimeState": "string"
+  }
+}

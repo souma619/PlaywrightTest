@@ -1,0 +1,72 @@
+meta {
+  name: UPDATE Style Results Interview API
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{BaseURL}}/interview/v1/interviews/9e5150f7-2483-4f85-a784-789297e4c9bb/Responses?optionalProjectId={{PROJECTID}}
+  body: json
+  auth: none
+}
+
+params:query {
+  optionalProjectId: {{PROJECTID}}
+}
+
+body:json {
+  {
+    "id": "9e5150f7-2483-4f85-a784-789297e4c9bb",
+    "questions": {
+      "28a7ee2b-968b-4269-9c39-909e345fdedb": {
+        "answers": {
+          "31e2380b-92fe-4d25-89ca-2383b2819407": true,
+          "04a4e5ae-ab21-44b4-91f7-2934664af9b3": false,
+          "af92637e-febf-4223-858f-7c1e3e282d5c": false,
+          "6bbb2752-c51f-4554-a9d7-9199cb8583cd": false,
+          "5fa9fc67-cc56-4170-9b73-a43a292ee415": false
+        }
+      },
+      "cd3b1e7c-45d1-478b-9ec8-5673adabe835": {
+        "answers": {
+          "e7fce66b-3b5a-4462-b9ad-104706ce3fd7": false,
+          "8d74c650-a5a1-450c-8329-1babf44fcc58": false,
+          "1455bd2a-5554-4d8a-947c-42005904a843": false,
+          "b6953086-a162-4f0d-aaab-70757c86376c": false,
+          "93f21cd2-0dcd-461e-9738-f0640c330a10": true
+        }
+      },
+      "489251ad-53e3-4d77-97d6-59698528ee86": {
+        "answers": {
+          "79cd5540-0b5b-4dde-8fcb-38d7d66a42c1": true,
+          "f3c3f064-21b3-4780-9a6b-4bbd145ec61e": false,
+          "3d69a981-b7ba-4591-b6ee-c3952127dba0": false,
+          "5ce81456-5550-494c-a1d8-d56abb29b9f2": false,
+          "7ae8dba1-9a68-46e2-be11-e5dcd45e9b52": false
+        }
+      },
+      "dc0f2bb1-f37d-4d21-8a82-9e077c37bb9f": {
+        "answers": {
+          "0c1f2caf-af5b-409c-9b84-7942955e8b88": false,
+          "182ae02a-406c-4176-a838-862d0671aefd": true,
+          "637b89e8-8c17-45c6-8027-958544377d4c": false,
+          "cef47971-9fa5-4907-a6da-bb70631ec438": false,
+          "f2865661-dded-48b5-a7bc-c2d0c2dbf90d": false
+        }
+      }
+    },
+    "skipped": false,
+    "completed": true,
+    "completedOn": "2026-01-13T15:27:47.711Z"
+  }
+}
+
+body:text {
+  {"id":"2ef6204a-8e1d-48aa-b7fb-01416a57f276","questions":{"213db880-1284-46d7-999b-264822c31274":{"answers":{"7fabec79-730a-4f25-8588-12f6ec4d62b1":true,"6db65eed-4a67-4f55-b84d-394c007df27b":true,"d99544c0-c900-4a9d-a6e3-5ab24c1f64bb":false,"20f68a1f-ff0c-4ffb-8a3d-84bc3daa781c":false,"066353ac-cc66-43f5-bbb8-d3340267fc51":false,"8abc603a-2741-4dbd-893f-d5e7896c5505":true}},"f6a0916a-bbbe-4d8b-bb29-1a7c21f20c62":{"answers":{"1460a184-2c40-4de0-8615-287f046b0b32":false,"a3ac7b28-8afd-4a7a-806d-9e1853346ae4":true,"05285750-8971-4ab6-acdc-ddf7260da362":false}},"7b81d3ce-8ce5-4431-ac18-e57826496eec":{"answers":{"9129a787-65db-4e77-bbcf-0c401ee2da15":"","01951c59-5579-4a82-901a-34f100d58b1a":false,"afb0b04d-cfe7-47c0-b2e5-a3aa538fda8a":"30,000","2b04ca4c-a4b9-4f9e-b004-b4e2585291ee":"2,000"}}}}
+}
+
+tests {
+  test("UPDATE Style Results Interview API", () => {
+      expect(res.getStatus()).to.equal(200);
+  })
+}

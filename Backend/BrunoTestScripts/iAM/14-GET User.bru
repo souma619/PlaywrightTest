@@ -1,0 +1,15 @@
+meta {
+  name: 14-GET User
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{BASEURL}}/user/{{userID}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
