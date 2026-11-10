@@ -1,0 +1,85 @@
+# NOTE: rev resets when the default retention period expires
+#name: '$(Year:yyyy).$(Month).$(DayOfMonth).$(rev:r)'
+name: $(MajorMinorVersion).$(SemanticVersion) # $(rev:r)
+
+pool:
+  vmImage: windows-latest
+
+# pipeline variables
+variables:
+  MajorMinorVersion: "1.0"
+  SemanticVersion: $[counter(variables['MajorMinorVersion'], 0)]
+  Major: "1"
+  Minor: "0"
+  # Patch: '0'
+  BuildParameters.Solution: "DotnetProjects/ApiTestPing/ApiTestPing.sln"
+  BuildParameters.ArtifactName: "BuildParameters.ArtifactName"
+  ProjectName: "MasterBrand.QETesting.ApiTestPing"
+  TestProjectName: "MasterBrand.QETesting.Test.ApiTestPing"
+  AzureDevOpsProjectId: "0d8f0344-6c1f-41fa-b2a4-6e37d0e8a0fa"
+  OrganizationName: "MBCIBI"
+  #- name: BuildParameters.solution
+  #  value: CommonLibraries.sln
+  #- name: BuildParameters.ArtifactName
+  #  value: drop
+
+# Only run against main branch
+trigger: none
+
+steps:
+  # Aquire specific version of NuGet
+  #- task: NuGetToolInstaller@1
+  #  displayName: Use NuGet 6.8.0
+  #  inputs:
+  #    versionSpec: 6.8.0
+  #    checkLatest: true
+
+  # NuGet restore
+  - task: NuGetCommand@2
+    displayName: NuGet Restore
+    inputs:
+      solution: $(BuildParameters.Solution)
+
+  # Build
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects: "**/$(ProjectName).csproj"
+      #arguments: '--configuration $(BuildConfiguration)' --no-restore /p:Version=$(Build.BuildNumber) --output
+      arguments: "--no-restore"
+
+  # Test
+  - task: DotNetCoreCLI@2
+    displayName: Run Unit Tests
+    inputs:
+      command: test
+      projects: "**/$(TestProjectName).csproj"
+      publishTestResults: true
+      arguments: "--no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+
+  # Package
+  - task: DotNetCoreCLI@2
+    displayName: "NuGet Pack"
+    inputs:
+      command: "pack"
+      configuration: $(BuildConfiguration)
+      packagesToPack: "**/$(ProjectName).csproj"
+      packDirectory: "$(Build.ArtifactStagingDirectory)"
+      versioningScheme: byPrereleaseNumber # byBuildNumber https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/build/dotnet-core-cli?view=azure-devops#yaml-snippet
+      majorVersion: $(Major)
+      minorVersion: $(Minor)
+      patchVersion: $(SemanticVersion)
+
+  # Authenticate
+  - task: NuGetAuthenticate@1
+    displayName: "NuGet Authenticate"
+
+  # Push
+  - task: DotNetCoreCLI@2
+    displayName: "NuGet Push"
+    inputs:
+      command: "push"
+      nuGetFeedType: "internal"
+      packagesToPush: "$(Build.ArtifactStagingDirectory)/$(ProjectName)*.nupkg"
+      publishVstsFeed: "$(AzureDevOpsProjectId)/MBDNuGetPackageFeed"
+      allowPackageConflicts: true

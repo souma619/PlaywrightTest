@@ -1,0 +1,43 @@
+# NOTE: rev resets when the default retention period expires
+#name: '$(Year:yyyy).$(Month).$(DayOfMonth).$(rev:r)'
+name: $(MajorMinorVersion).$(SemanticVersion) # $(rev:r)
+
+pool:
+  vmImage: windows-latest
+
+# pipeline variables
+variables:
+  MajorMinorVersion: "1.0"
+  SemanticVersion: $[counter(variables['MajorMinorVersion'], 0)]
+  Major: "1"
+  Minor: "0"
+  # Patch: '0'
+  BuildParameters.Solution: "DotnetProjects/ApiTestPing/ApiTestPing.sln"
+  ProjectName: "MasterBrand.QETesting.ApiTestPing"
+  TestProjectName: "MasterBrand.QETesting.Test.ApiTestPing"
+
+trigger: none
+
+steps:
+  # NuGet restore
+  - task: NuGetCommand@2
+    displayName: NuGet Restore
+    inputs:
+      solution: $(BuildParameters.Solution)
+
+  # Build
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects: "**/$(ProjectName).csproj"
+      #arguments: '--configuration $(BuildConfiguration)' --no-restore /p:Version=$(Build.BuildNumber) --output
+      arguments: "--no-restore"
+
+  # Test
+  - task: DotNetCoreCLI@2
+    displayName: Run Unit Tests
+    inputs:
+      command: test
+      projects: "**/$(TestProjectName).csproj"
+      publishTestResults: true
+      arguments: "--no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"

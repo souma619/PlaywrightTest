@@ -1,0 +1,1291 @@
+trigger: none
+
+schedules:
+  - cron: "0 10 * * *"  # 2 AM PDT = 9 AM UTC
+    displayName: "Nightly Playwright Run (2AM PDT)"
+    branches:
+      include:
+        - main
+    always: true
+
+variables:
+  - name: definitionId
+    value: '90'
+  - group: qe-test-automation-variables
+
+parameters:
+
+  - name: environment
+    displayName: "Environment"
+    type: string
+    values:
+      - dev
+      - uat
+      - int
+    default: uat
+
+  - name: runAll
+    displayName: "Run Complete Test Regression (Un-check to select specific suites)"
+    type: boolean
+    default: true
+
+  - name: runSmokePage
+    displayName: "SmokePage Test Suite"
+    type: boolean
+    default: false
+
+  - name: runHomePage
+    displayName: "HomePage Test Suite"
+    type: boolean
+    default: false
+
+  - name: runUniversalHeaderPage
+    displayName: "UniversalHeaderPage Test Suite"
+    type: boolean
+    default: false
+
+  - name: runConnectNowPage
+    displayName: "ConnectNow Test Suite"
+    type: boolean
+    default: false
+
+  - name: runStylePage
+    displayName: "StylePage Test Suite"
+    type: boolean
+    default: false
+
+  - name: runAccountsPage
+    displayName: "AccountsPage Test Suite"
+    type: boolean
+    default: false
+
+  - name: runBudgetPage
+    displayName: "BudgetPage Test Suite"
+    type: boolean
+    default: false
+
+  - name: runConsolidatedProfilePage
+    displayName: "ConsolidatedProfilePage Test Suite"
+    type: boolean
+    default: false
+
+  - name: runDesignPage
+    displayName: "DesignPage Test Suite"
+    type: boolean
+    default: false
+
+  - name: runIceBreakerPage
+    displayName: "IceBreakerPage Test Suite"
+    type: boolean
+    default: false
+
+  - name: runVirtualDesigner
+    displayName: "VirtualDesigner Test Suite"
+    type: boolean
+    default: false
+
+stages:
+
+# ══════════════════════════════════════════════════════════════════════════════
+# STAGE 1 — Setup
+# ══════════════════════════════════════════════════════════════════════════════
+
+- stage: Setup
+  displayName: 'Setup'
+  jobs:
+  - job: Setup
+    timeoutInMinutes: 60
+    pool:
+      name: vmss-low
+    steps:
+
+    - task: AzureCLI@2
+      displayName: 'Get latest successful frontend ${{ parameters.environment }} build ID'
+      inputs:
+        azureSubscription: 'jumpstarter-non-prod'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          echo "Setting up Azure DevOps CLI authentication..."
+          export AZURE_DEVOPS_EXT_PAT=$(ADO_TESTS_PAT)
+          az devops configure --defaults organization='$(System.TeamFoundationCollectionUri)' project='$(System.TeamProject)'
+          latestBuildId=$(az pipelines build list \
+            --definition-ids "$(definitionId)" \
+            --status "completed" \
+            --result "succeeded" \
+            --top 1 \
+            --query "[0].id" -o tsv)
+          echo "##vso[task.setvariable variable=SOURCE_BUILD_ID;isOutput=true]$latestBuildId"
+          echo "Latest build ID: $latestBuildId"
+      name: SetBuildId
+
+    - bash: |
+        if [ -z "$(SetBuildId.SOURCE_BUILD_ID)" ] || [ "$(SetBuildId.SOURCE_BUILD_ID)" -le 0 ]; then
+          echo "##vso[task.setvariable variable=isValidBuild;isOutput=true]false"
+          exit 1
+        else
+          echo "##vso[task.setvariable variable=isValidBuild;isOutput=true]true"
+        fi
+      displayName: 'Validate Source BuildID'
+      name: ValidateBuild
+
+    - task: DownloadPipelineArtifact@2
+      condition: and(succeeded(), eq(variables['ValidateBuild.isValidBuild'], 'true'))
+      inputs:
+        buildType: 'specific'
+        project: 'Digital Product and Innovation'
+        pipeline: 'jumpstarter-static-website-${{ parameters.environment }}'
+        runId: $(SetBuildId.SOURCE_BUILD_ID)
+        targetPath: '$(Pipeline.Workspace)/downloaded'
+
+    - script: |
+        EXTRACT_DIR="$(Pipeline.Workspace)/extracted_dist"
+        mkdir -p "$EXTRACT_DIR"
+        INNER_ZIP=$(find "$(Pipeline.Workspace)/downloaded" -type f -name "*.zip" ! -iname "*configs*" | awk '{ print length, $0 }' | sort -nr | cut -d" " -f2- | head -n1)
+        echo "Inner zip found: $INNER_ZIP"
+        unzip "$INNER_ZIP" -d "$EXTRACT_DIR"
+        if [ ! -d "$EXTRACT_DIR/dist" ]; then
+          echo "dist folder not found!"
+          exit 1
+        fi
+        echo "dist/ extracted to $EXTRACT_DIR/dist"
+      displayName: 'Extract zip and validate dist folder'
+
+    - script: |
+        cd $(Pipeline.Workspace)/extracted_dist/dist
+        npm install -g http-server
+        http-server -p 3000 &
+      displayName: 'Start local server'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# STAGES 2–12 — Sequential, except for two parallel groups:
+#   Group A (parallel, all dependOn Setup):       IceBreakerPage, StylePage, DesignPage
+#   Group A merge point (waits for all of Group A): BudgetPage
+#   ... sequential chain ...
+#   Group B (parallel, both dependOn AccountsPage): HomePage, UniversalHeaderPage
+#   Group B merge point (waits for all of Group B): ConnectNowPage
+#   ... sequential chain to the end ...
+#
+# Each stage:
+#   1. Installs Node + Playwright on its fresh agent
+#   2. Runs the spec
+#   3. Uploads the HTML report as a pipeline artifact (artifact root = report root)
+#   4. Uploads the JUnit XML as its own pipeline artifact
+# ══════════════════════════════════════════════════════════════════════════════
+
+- stage: IceBreakerPage
+  displayName: 'IceBreakerPage Test Suite'
+  dependsOn: Setup
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runIceBreakerPage }}', true)))
+  jobs:
+  - job: RunIceBreakerPage
+    timeoutInMinutes: 180
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    - script: npx playwright test ui_tests/IceBreakerPageTests/iceBreakerPage_test.spec.ts
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Run IceBreakerPage Tests'
+      continueOnError: true
+      env:
+        environment: ${{ parameters.environment }}
+        CI: true
+        grant_type: $(grant_type)
+        client_id_int: $(client_id_int)
+        client_secret_int: $(client_secret_int)
+        client_id_uat: $(client_id_uat)
+        client_secret_uat: $(client_secret_uat)
+        resource: $(resource)
+        base_url: $(base_url)
+        user_management_url: $(user_management_url)
+        createEmail: $(createEmail)
+        password: $(password)
+        pat: $(pat)
+        base_url_iam_initial: $(base_url_iam_initial)
+        base_url_iam_final: $(base_url_iam_final)
+        audience_initial: $(audience_initial)
+        audience_final: $(audience_final)
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload IceBreakerPage HTML report'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+        artifact: 'html-report-IceBreakerPage'
+        publishLocation: 'pipeline'
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload IceBreakerPage JUnit results'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+        artifact: 'junit-IceBreakerPage'
+        publishLocation: 'pipeline'
+
+- stage: StylePage
+  displayName: 'StylePage Test Suite'
+  dependsOn: Setup
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runStylePage }}', true)))
+  jobs:
+  - job: RunStylePage
+    timeoutInMinutes: 180
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    - script: npx playwright test ui_tests/StylePageTests/stylePage_test.spec.ts
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Run StylePage Tests'
+      continueOnError: true
+      env:
+        environment: ${{ parameters.environment }}
+        CI: true
+        grant_type: $(grant_type)
+        client_id_int: $(client_id_int)
+        client_secret_int: $(client_secret_int)
+        client_id_uat: $(client_id_uat)
+        client_secret_uat: $(client_secret_uat)
+        resource: $(resource)
+        base_url: $(base_url)
+        user_management_url: $(user_management_url)
+        createEmail: $(createEmail)
+        password: $(password)
+        pat: $(pat)
+        base_url_iam_initial: $(base_url_iam_initial)
+        base_url_iam_final: $(base_url_iam_final)
+        audience_initial: $(audience_initial)
+        audience_final: $(audience_final)
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload StylePage HTML report'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+        artifact: 'html-report-StylePage'
+        publishLocation: 'pipeline'
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload StylePage JUnit results'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+        artifact: 'junit-StylePage'
+        publishLocation: 'pipeline'
+
+- stage: DesignPage
+  displayName: 'DesignPage Test Suite'
+  dependsOn: Setup
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runDesignPage }}', true)))
+  jobs:
+  - job: RunDesignPage
+    timeoutInMinutes: 180
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    - script: npx playwright test ui_tests/DesignPageTests/designPage_test.spec.ts
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Run DesignPage Tests'
+      continueOnError: true
+      env:
+        environment: ${{ parameters.environment }}
+        CI: true
+        grant_type: $(grant_type)
+        client_id_int: $(client_id_int)
+        client_secret_int: $(client_secret_int)
+        client_id_uat: $(client_id_uat)
+        client_secret_uat: $(client_secret_uat)
+        resource: $(resource)
+        base_url: $(base_url)
+        user_management_url: $(user_management_url)
+        createEmail: $(createEmail)
+        password: $(password)
+        pat: $(pat)
+        base_url_iam_initial: $(base_url_iam_initial)
+        base_url_iam_final: $(base_url_iam_final)
+        audience_initial: $(audience_initial)
+        audience_final: $(audience_final)
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload DesignPage HTML report'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+        artifact: 'html-report-DesignPage'
+        publishLocation: 'pipeline'
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload DesignPage JUnit results'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+        artifact: 'junit-DesignPage'
+        publishLocation: 'pipeline'
+
+- stage: BudgetPage
+  displayName: 'BudgetPage Test Suite'
+  dependsOn:
+    - ConsolidatedProfilePage
+    - ConnectNowPage
+    - AccountsPage
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runBudgetPage }}', true)))
+  jobs:
+  - job: RunBudgetPage
+    timeoutInMinutes: 180
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    - script: npx playwright test ui_tests/BudgetPageTests/budgetPage_test.spec.ts
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Run BudgetPage Tests'
+      continueOnError: true
+      env:
+        environment: ${{ parameters.environment }}
+        CI: true
+        grant_type: $(grant_type)
+        client_id_int: $(client_id_int)
+        client_secret_int: $(client_secret_int)
+        client_id_uat: $(client_id_uat)
+        client_secret_uat: $(client_secret_uat)
+        resource: $(resource)
+        base_url: $(base_url)
+        user_management_url: $(user_management_url)
+        createEmail: $(createEmail)
+        password: $(password)
+        pat: $(pat)
+        base_url_iam_initial: $(base_url_iam_initial)
+        base_url_iam_final: $(base_url_iam_final)
+        audience_initial: $(audience_initial)
+        audience_final: $(audience_final)
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload BudgetPage HTML report'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+        artifact: 'html-report-BudgetPage'
+        publishLocation: 'pipeline'
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload BudgetPage JUnit results'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+        artifact: 'junit-BudgetPage'
+        publishLocation: 'pipeline'
+
+- stage: ConsolidatedProfilePage
+  displayName: 'ConsolidatedProfilePage Test Suite'
+  dependsOn: SmokePage
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runConsolidatedProfilePage }}', true)))
+  jobs:
+  - job: RunConsolidatedProfilePage
+    timeoutInMinutes: 180
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    - script: npx playwright test ui_tests/ConsolidatedProfilePageTests/consolidatedProfilePage_test.spec.ts
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Run ConsolidatedProfilePage Tests'
+      continueOnError: true
+      env:
+        environment: ${{ parameters.environment }}
+        CI: true
+        grant_type: $(grant_type)
+        client_id_int: $(client_id_int)
+        client_secret_int: $(client_secret_int)
+        client_id_uat: $(client_id_uat)
+        client_secret_uat: $(client_secret_uat)
+        resource: $(resource)
+        base_url: $(base_url)
+        user_management_url: $(user_management_url)
+        createEmail: $(createEmail)
+        password: $(password)
+        pat: $(pat)
+        base_url_iam_initial: $(base_url_iam_initial)
+        base_url_iam_final: $(base_url_iam_final)
+        audience_initial: $(audience_initial)
+        audience_final: $(audience_final)
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload ConsolidatedProfilePage HTML report'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+        artifact: 'html-report-ConsolidatedProfilePage'
+        publishLocation: 'pipeline'
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload ConsolidatedProfilePage JUnit results'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+        artifact: 'junit-ConsolidatedProfilePage'
+        publishLocation: 'pipeline'
+
+- stage: AccountsPage
+  displayName: 'AccountsPage Test Suite'
+  dependsOn: UniversalHeaderPage
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runAccountsPage }}', true)))
+  jobs:
+  - job: RunAccountsPage
+    timeoutInMinutes: 180
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    # - script: npx playwright test ui_tests/AccountsPageTests/accountsPage_test.spec.ts
+    #   workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+    #   displayName: 'Run AccountsPage Tests'
+    #   continueOnError: true
+    #   env:
+    #     environment: ${{ parameters.environment }}
+    #     CI: true
+    #     grant_type: $(grant_type)
+    #     client_id_int: $(client_id_int)
+    #     client_secret_int: $(client_secret_int)
+    #     client_id_uat: $(client_id_uat)
+    #     client_secret_uat: $(client_secret_uat)
+    #     resource: $(resource)
+    #     base_url: $(base_url)
+    #     user_management_url: $(user_management_url)
+    #     createEmail: $(createEmail)
+    #     password: $(password)
+    #     pat: $(pat)
+    #     base_url_iam_initial: $(base_url_iam_initial)
+    #     base_url_iam_final: $(base_url_iam_final)
+    #     audience_initial: $(audience_initial)
+    #     audience_final: $(audience_final)
+    # - task: PublishPipelineArtifact@1
+    #   displayName: 'Upload AccountsPage HTML report'
+    #   condition: succeededOrFailed()
+    #   inputs:
+    #     targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+    #     artifact: 'html-report-AccountsPage'
+    #     publishLocation: 'pipeline'
+    # - task: PublishPipelineArtifact@1
+    #   displayName: 'Upload AccountsPage JUnit results'
+    #   condition: succeededOrFailed()
+    #   inputs:
+    #     targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+    #     artifact: 'junit-AccountsPage'
+    #     publishLocation: 'pipeline'
+
+- stage: HomePage
+  displayName: 'HomePage Test Suite'
+  dependsOn: StylePage
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runHomePage }}', true)))
+  jobs:
+  - job: RunHomePage
+    timeoutInMinutes: 180
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    - script: npx playwright test ui_tests/HomePageTests/homePage_test.spec.ts
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Run HomePage Tests'
+      continueOnError: true
+      env:
+        environment: ${{ parameters.environment }}
+        CI: true
+        grant_type: $(grant_type)
+        client_id_int: $(client_id_int)
+        client_secret_int: $(client_secret_int)
+        client_id_uat: $(client_id_uat)
+        client_secret_uat: $(client_secret_uat)
+        resource: $(resource)
+        base_url: $(base_url)
+        user_management_url: $(user_management_url)
+        createEmail: $(createEmail)
+        password: $(password)
+        pat: $(pat)
+        base_url_iam_initial: $(base_url_iam_initial)
+        base_url_iam_final: $(base_url_iam_final)
+        audience_initial: $(audience_initial)
+        audience_final: $(audience_final)
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload HomePage HTML report'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+        artifact: 'html-report-HomePage'
+        publishLocation: 'pipeline'
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload HomePage JUnit results'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+        artifact: 'junit-HomePage'
+        publishLocation: 'pipeline'
+
+- stage: UniversalHeaderPage
+  displayName: 'UniversalHeaderPage Test Suite'
+  dependsOn: DesignPage
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runUniversalHeaderPage }}', true)))
+  jobs:
+  - job: RunUniversalHeaderPage
+    timeoutInMinutes: 180
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    - script: npx playwright test ui_tests/UniversalHeaderTests/universalHeaderPage_test.spec.ts
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Run UniversalHeaderPage Tests'
+      continueOnError: true
+      env:
+        environment: ${{ parameters.environment }}
+        CI: true
+        grant_type: $(grant_type)
+        client_id_int: $(client_id_int)
+        client_secret_int: $(client_secret_int)
+        client_id_uat: $(client_id_uat)
+        client_secret_uat: $(client_secret_uat)
+        resource: $(resource)
+        base_url: $(base_url)
+        user_management_url: $(user_management_url)
+        createEmail: $(createEmail)
+        password: $(password)
+        pat: $(pat)
+        base_url_iam_initial: $(base_url_iam_initial)
+        base_url_iam_final: $(base_url_iam_final)
+        audience_initial: $(audience_initial)
+        audience_final: $(audience_final)
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload UniversalHeaderPage HTML report'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+        artifact: 'html-report-UniversalHeaderPage'
+        publishLocation: 'pipeline'
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload UniversalHeaderPage JUnit results'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+        artifact: 'junit-UniversalHeaderPage'
+        publishLocation: 'pipeline'
+
+- stage: ConnectNowPage
+  displayName: 'ConnectNowPage Test Suite'
+  dependsOn: HomePage
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runConnectNowPage }}', true)))
+  jobs:
+  - job: RunConnectNowPage
+    timeoutInMinutes: 180
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    # - script: npx playwright test ui_tests/ConnectNowTests/connectnow_test.spec.ts
+    #   workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+    #   displayName: 'Run ConnectNowPage Tests'
+    #   continueOnError: true
+    #   env:
+    #     environment: ${{ parameters.environment }}
+    #     CI: true
+    #     grant_type: $(grant_type)
+    #     client_id_int: $(client_id_int)
+    #     client_secret_int: $(client_secret_int)
+    #     client_id_uat: $(client_id_uat)
+    #     client_secret_uat: $(client_secret_uat)
+    #     resource: $(resource)
+    #     base_url: $(base_url)
+    #     user_management_url: $(user_management_url)
+    #     createEmail: $(createEmail)
+    #     password: $(password)
+    #     pat: $(pat)
+    #     base_url_iam_initial: $(base_url_iam_initial)
+    #     base_url_iam_final: $(base_url_iam_final)
+    #     audience_initial: $(audience_initial)
+    #     audience_final: $(audience_final)
+    # - task: PublishPipelineArtifact@1
+    #   displayName: 'Upload ConnectNow HTML report'
+    #   condition: succeededOrFailed()
+    #   inputs:
+    #     targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+    #     artifact: 'html-report-ConnectNow'
+    #     publishLocation: 'pipeline'
+    # - task: PublishPipelineArtifact@1
+    #   displayName: 'Upload ConnectNow JUnit results'
+    #   condition: succeededOrFailed()
+    #   inputs:
+    #     targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+    #     artifact: 'junit-ConnectNow'
+    #     publishLocation: 'pipeline'
+
+- stage: VirtualDesigner
+  displayName: 'VirtualDesigner Test Suite'
+  dependsOn:
+    - ConsolidatedProfilePage
+    - ConnectNowPage
+    - AccountsPage
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runVirtualDesigner }}', true)))
+  jobs:
+  - job: RunVirtualDesigner
+    timeoutInMinutes: 180
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    # - script: npx playwright test ui_tests/VirtualDesigner/virtualDesignerPage_test.spec.ts
+    #   workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+    #   displayName: 'Run VirtualDesigner Tests'
+    #   continueOnError: true
+    #   env:
+    #     environment: ${{ parameters.environment }}
+    #     CI: true
+    #     grant_type: $(grant_type)
+    #     client_id_int: $(client_id_int)
+    #     client_secret_int: $(client_secret_int)
+    #     client_id_uat: $(client_id_uat)
+    #     client_secret_uat: $(client_secret_uat)
+    #     resource: $(resource)
+    #     base_url: $(base_url)
+    #     user_management_url: $(user_management_url)
+    #     createEmail: $(createEmail)
+    #     password: $(password)
+    #     pat: $(pat)
+    #     base_url_iam_initial: $(base_url_iam_initial)
+    #     base_url_iam_final: $(base_url_iam_final)
+    #     audience_initial: $(audience_initial)
+    #     audience_final: $(audience_final)
+    # - task: PublishPipelineArtifact@1
+    #   displayName: 'Upload VirtualDesigner HTML report'
+    #   condition: succeededOrFailed()
+    #   inputs:
+    #     targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+    #     artifact: 'html-report-VirtualDesigner'
+    #     publishLocation: 'pipeline'
+    # - task: PublishPipelineArtifact@1
+    #   displayName: 'Upload VirtualDesigner JUnit results'
+    #   condition: succeededOrFailed()
+    #   inputs:
+    #     targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+    #     artifact: 'junit-VirtualDesigner'
+    #     publishLocation: 'pipeline'
+
+- stage: SmokePage
+  displayName: 'SmokePage Test Suite'
+  dependsOn: IceBreakerPage
+  condition: >-
+    and(not(failed('Setup')),
+      or(eq('${{ parameters.runAll }}', true),
+         eq('${{ parameters.runSmokePage }}', true)))
+  jobs:
+  - job: RunSmokePage
+    timeoutInMinutes: 240
+    pool:
+      name: vmss-low
+    steps:
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+      displayName: 'Install Node.js'
+    - script: |
+        echo "Project Directory:$(System.DefaultWorkingDirectory)"
+        echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+        sudo rm -f /var/lib/apt/lists/lock
+        sudo rm -f /var/lib/dpkg/lock
+        sudo rm -f /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get clean
+        sudo apt-get update --fix-missing
+        sudo apt-get install -f
+        npm install @playwright/test
+        npm install pdf-parse
+        npx playwright install --with-deps
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Install Playwright browsers'
+      retryCountOnTaskFailure: 1
+    - script: npx playwright test ui_tests/SmokePageTests/smokePage_test.spec.ts
+      workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+      displayName: 'Run SmokePage Tests'
+      continueOnError: true
+      env:
+        environment: ${{ parameters.environment }}
+        CI: true
+        grant_type: $(grant_type)
+        client_id_int: $(client_id_int)
+        client_secret_int: $(client_secret_int)
+        client_id_uat: $(client_id_uat)
+        client_secret_uat: $(client_secret_uat)
+        resource: $(resource)
+        base_url: $(base_url)
+        user_management_url: $(user_management_url)
+        createEmail: $(createEmail)
+        password: $(password)
+        pat: $(pat)
+        base_url_iam_initial: $(base_url_iam_initial)
+        base_url_iam_final: $(base_url_iam_final)
+        audience_initial: $(audience_initial)
+        audience_final: $(audience_final)
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload SmokePage HTML report'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/playwright-report/html-report'
+        artifact: 'html-report-SmokePage'
+        publishLocation: 'pipeline'
+    - task: PublishPipelineArtifact@1
+      displayName: 'Upload SmokePage JUnit results'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+        artifact: 'junit-SmokePage'
+        publishLocation: 'pipeline'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# STAGE 13 — Publish
+# Downloads all per-stage HTML report and JUnit artifacts, merges the HTML
+# reports into a single browsable index.html, and publishes JUnit results.
+# Runs always so nothing is missed even on partial failures or cancellation.
+# ══════════════════════════════════════════════════════════════════════════════
+
+- stage: Publish
+  displayName: 'Publish Results'
+  dependsOn:
+    - IceBreakerPage
+    - StylePage
+    - DesignPage
+    - BudgetPage
+    - ConsolidatedProfilePage
+    - AccountsPage
+    - HomePage
+    - UniversalHeaderPage
+    - ConnectNowPage
+    - VirtualDesigner
+    - SmokePage
+  condition: always()
+  jobs:
+  - job: PublishResults
+    timeoutInMinutes: 30
+    pool:
+      name: vmss-low
+    steps:
+
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download all HTML reports'
+      condition: succeededOrFailed()
+      inputs:
+        buildType: 'current'
+        targetPath: '$(Pipeline.Workspace)/all-reports'
+
+    - script: |
+        set -uo pipefail
+        SOURCE_DIR='$(Pipeline.Workspace)/all-reports'
+        MERGED_DIR='$(Pipeline.Workspace)/merged-html-reports'
+
+        rm -rf "$MERGED_DIR"
+        mkdir -p "$MERGED_DIR"
+
+        echo "Listing all downloaded artifacts under $SOURCE_DIR:"
+        find "$SOURCE_DIR" -maxdepth 2
+
+        # Each downloaded artifact folder IS the report root (it was uploaded
+        # directly from playwright-report/html-report, so there's no nested
+        # 'html-report' subfolder to search for — match the artifact folder
+        # itself by its 'html-report-<Suite>' naming convention instead.
+        FOUND_ANY=false
+        while IFS= read -r artifactDir; do
+          suiteFolder=$(basename "$artifactDir")
+          suiteName=${suiteFolder#html-report-}
+          echo "Found report for suite: $suiteName (from $artifactDir)"
+          cp -R "$artifactDir" "$MERGED_DIR/$suiteName"
+          FOUND_ANY=true
+        done < <(find "$SOURCE_DIR" -mindepth 1 -maxdepth 1 -type d -name "html-report-*" 2>/dev/null)
+
+        if [ "$FOUND_ANY" = false ]; then
+          echo "##vso[task.logissue type=warning]No suite HTML reports were found under $SOURCE_DIR — check upstream stages' upload steps."
+        fi
+
+        {
+          echo '<!doctype html>'
+          echo '<html><head><meta charset="UTF-8"><title>Playwright HTML Reports</title></head><body>'
+          echo '<h1>Playwright HTML Reports</h1>'
+          if [ "$FOUND_ANY" = true ]; then
+            echo '<ul>'
+            for suitePath in "$MERGED_DIR"/*; do
+              if [ -d "$suitePath" ]; then
+                suiteName=$(basename "$suitePath")
+                echo "<li><a href=\"$suiteName/index.html\">$suiteName</a></li>"
+              fi
+            done
+            echo '</ul>'
+          else
+            echo '<p><strong>No suite HTML reports were found.</strong> Check upstream stage logs for upload failures.</p>'
+          fi
+          echo '</body></html>'
+        } > "$MERGED_DIR/index.html"
+
+        echo "Merge step completed (FOUND_ANY=$FOUND_ANY)"
+      displayName: 'Merge suite HTML reports'
+      condition: succeededOrFailed()
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish merged HTML reports'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(Pipeline.Workspace)/merged-html-reports'
+        artifact: 'HTML Reports — All Suites'
+        publishLocation: 'pipeline'
+
+    - script: |
+        set -uo pipefail
+        SOURCE_DIR='$(Pipeline.Workspace)/all-reports'
+        JUNIT_DIR='$(Pipeline.Workspace)/junit-results-artifact'
+
+        rm -rf "$JUNIT_DIR"
+        mkdir -p "$JUNIT_DIR"
+
+        echo "Listing all downloaded junit artifacts under $SOURCE_DIR:"
+        find "$SOURCE_DIR" -mindepth 1 -maxdepth 1 -type d -name "junit-*"
+
+        # Each junit-<Suite> artifact folder now contains the entire test-results
+        # folder contents (screenshots, videos, traces + junit-results.xml).
+        # junit-results.xml sits at the artifact root level.
+        # Attachments (screenshots/videos/traces) sit in subfolders alongside it.
+        # We copy the whole artifact folder into JUNIT_DIR so Azure DevOps can
+        # resolve the attachment paths referenced inside junit-results.xml.
+        FOUND_ANY=false
+        while IFS= read -r artifactDir; do
+          suiteFolder=$(basename "$artifactDir")
+          suiteName=${suiteFolder#junit-}
+          junitFile="$artifactDir/junit-results.xml"
+          if [ -f "$junitFile" ]; then
+            echo "Found junit-results.xml for suite: $suiteName"
+            # Copy entire artifact folder so attachment paths remain valid
+            cp -R "$artifactDir/." "$JUNIT_DIR/"
+            # Rename the XML so suites don't overwrite each other
+            mv "$JUNIT_DIR/junit-results.xml" "$JUNIT_DIR/junit-results-${suiteName}.xml"
+            FOUND_ANY=true
+          else
+            echo "WARNING: $artifactDir exists but junit-results.xml not found inside it"
+          fi
+        done < <(find "$SOURCE_DIR" -mindepth 1 -maxdepth 1 -type d -name "junit-*" 2>/dev/null)
+
+        if [ "$FOUND_ANY" = false ]; then
+          echo "##vso[task.logissue type=warning]No junit-results.xml files found under $SOURCE_DIR."
+          echo "No JUnit XML files were found in this run." > "$JUNIT_DIR/README.txt"
+        fi
+
+        echo "Collect step completed (FOUND_ANY=$FOUND_ANY)"
+      displayName: 'Collect JUnit XML files'
+      condition: succeededOrFailed()
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish JUnit XML artifact'
+      condition: succeededOrFailed()
+      inputs:
+        targetPath: '$(Pipeline.Workspace)/junit-results-artifact'
+        artifact: 'junit-results-xml'
+        publishLocation: 'pipeline'
+
+    - task: PublishTestResults@2
+      displayName: 'Publish JUnit results'
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '$(Pipeline.Workspace)/junit-results-artifact/*.xml'
+        testRunTitle: 'Playwright JUnit Results — ${{ parameters.environment }}'
+        failTaskOnFailedTests: false
+
+    # =====================================================
+    # COMPUTE TEST SUMMARY FROM MERGED JUNIT XML
+    # =====================================================
+    - script: |
+        python3 - <<'EOF'
+        import glob
+        import os
+        import xml.etree.ElementTree as ET
+
+        results_dir = os.environ["RESULTS_DIR"]
+
+        total = 0
+        passed = 0
+        failed = 0
+        skipped = 0
+
+        for xml_file in glob.glob(os.path.join(results_dir, "junit-results-*.xml")):
+            try:
+                root = ET.parse(xml_file).getroot()
+            except Exception as exc:
+                print(f"Warning: could not parse JUnit file {xml_file}: {exc}")
+                continue
+
+            suites = [root] if root.tag == "testsuite" else root.findall(".//testsuite")
+            for suite in suites:
+                tests = int(suite.get("tests", 0))
+                failures = int(suite.get("failures", 0))
+                errors = int(suite.get("errors", 0))
+                skip = int(suite.get("skipped", 0))
+
+                total += tests
+                failed += failures + errors
+                skipped += skip
+                passed += tests - failures - errors - skip
+
+        pass_pct = round((passed / total * 100), 2) if total else 0
+
+        with open(os.path.join(results_dir, "summary.env"), "w") as summary_file:
+            summary_file.write(
+                f"TOTAL={total}\n"
+                f"PASSED={passed}\n"
+                f"FAILED={failed}\n"
+                f"SKIPPED={skipped}\n"
+                f"PASS_PCT={pass_pct}\n"
+            )
+
+        print(
+            f"Summary: {total} tests, {passed} passed, {failed} failed, "
+            f"{skipped} skipped ({pass_pct}%)."
+        )
+        EOF
+      displayName: 'Compute Test Summary from JUnit XML'
+      env:
+        RESULTS_DIR: '$(Pipeline.Workspace)/junit-results-artifact'
+      condition: succeededOrFailed()
+
+    # =====================================================
+    # BUILD ADAPTIVE CARD FROM SUMMARY
+    # =====================================================
+    - script: |
+        source "$(Pipeline.Workspace)/junit-results-artifact/summary.env"
+
+        python3 - <<EOF
+        import json, os
+
+        total = int("${TOTAL:-0}")
+        passed = int("${PASSED:-0}")
+        failed = int("${FAILED:-0}")
+        skipped = int("${SKIPPED:-0}")
+        pass_pct = "${PASS_PCT:-0}"
+
+        pipeline_name = os.environ["PIPELINE_NAME"]
+        run_id = os.environ["RUN_ID"]
+        environment = os.environ["PIPELINE_ENV"]
+        build_results_url = os.environ["BUILD_RESULTS_URL"]
+        artifacts_url = os.environ["BUILD_ARTIFACTS_URL"]
+
+        overall_ok = (failed == 0 and total > 0)
+        status_icon = "✅" if overall_ok else "❌"
+        status_text = "All Tests Passed" if overall_ok else f"{failed} Test(s) Failed"
+        status_color = "Good" if overall_ok else "Attention"
+
+        adaptive_card = {
+            "type": "AdaptiveCard",
+            "\$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "version": "1.4",
+            "body": [
+                {
+                    "type": "TextBlock",
+                    "text": f"Daily Playwright E2E Pipeline Test Summary - {environment}",
+                    "weight": "Bolder",
+                    "size": "Medium"
+                },
+                {
+                    "type": "TextBlock",
+                    "text": f"{status_icon} {status_text}",
+                    "weight": "Bolder",
+                    "color": status_color,
+                    "spacing": "Small"
+                },
+                {
+                    "type": "FactSet",
+                    "facts": [
+                        {"title": "🔧 Pipeline:", "value": pipeline_name},
+                        {"title": "🆔 Run ID:", "value": run_id},
+                        {"title": "🌐 Environment:", "value": environment},
+                        {"title": "📊 Total Tests:", "value": str(total)},
+                        {"title": "✅ Total Passed:", "value": str(passed)},
+                        {"title": "❌ Total Failed:", "value": str(failed)},
+                        {"title": "📈 Pass %:", "value": f"{pass_pct}%"}
+                    ]
+                }
+            ],
+            "actions": [
+                {
+                    "type": "Action.OpenUrl",
+                    "title": "📂 View JUnit Results",
+                    "url": build_results_url
+                },
+                {
+                    "type": "Action.OpenUrl",
+                    "title": "🌐 View HTML Reports",
+                    "url": artifacts_url
+                }
+            ]
+        }
+
+        with open(os.path.join(os.environ["RESULTS_DIR"], "teams_card.json"), "w") as f:
+            json.dump(adaptive_card, f)
+
+        print(json.dumps(adaptive_card, indent=2))
+        EOF
+      displayName: 'Build Adaptive Card'
+      env:
+        RESULTS_DIR: '$(Pipeline.Workspace)/junit-results-artifact'
+        PIPELINE_NAME: '$(Build.DefinitionName)'
+        RUN_ID: '$(Build.BuildId)'
+        PIPELINE_ENV: ${{ parameters.environment }}
+        BUILD_RESULTS_URL: '$(System.CollectionUri)$(System.TeamProjectId)/_build/results?buildId=$(Build.BuildId)&view=ms.vss-test-web.build-test-results-tab'
+        BUILD_ARTIFACTS_URL: '$(System.CollectionUri)$(System.TeamProjectId)/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts'
+      condition: succeededOrFailed()
+
+    # =====================================================
+    # POST ADAPTIVE CARD TO TEAMS
+    # =====================================================
+    - script: |
+        CARD_FILE="$(Pipeline.Workspace)/junit-results-artifact/teams_card.json"
+
+        case "${{ parameters.environment }}" in
+          dev)
+            WEBHOOK_URL="$TEAMS_WEBHOOK_URL_DEV"
+            ;;
+          int)
+            WEBHOOK_URL="$TEAMS_WEBHOOK_URL_INT"
+            ;;
+          uat)
+            WEBHOOK_URL="$TEAMS_WEBHOOK_URL_UAT"
+            ;;
+          *)
+            echo "No Teams webhook configured for environment '${{ parameters.environment }}'. Defaulting to UAT webhook."
+            WEBHOOK_URL="$TEAMS_WEBHOOK_URL_UAT"
+            ;;
+        esac
+
+        if [ -z "$WEBHOOK_URL" ]; then
+          echo "Resolved webhook URL is empty. Skipping Teams post."
+          exit 0
+        fi
+
+        if [ ! -f "$CARD_FILE" ]; then
+          echo "Adaptive Card file not found, skipping Teams post."
+          exit 0
+        fi
+
+        cat "$CARD_FILE"
+
+        curl -X POST "$WEBHOOK_URL" \
+          -H "Content-Type: application/json" \
+          -d @"$CARD_FILE"
+      displayName: 'Post Adaptive Card to Teams'
+      condition: succeededOrFailed()
+      env:
+        TEAMS_WEBHOOK_URL_DEV: $(teams_webhook_url_DEV)
+        TEAMS_WEBHOOK_URL_UAT: $(teams_webhook_url_UAT)
+        TEAMS_WEBHOOK_URL_INT: $(teams_webhook_url_INT)

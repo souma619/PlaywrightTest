@@ -1,0 +1,854 @@
+trigger: none
+
+pool:
+  name: vmss-low
+
+parameters:
+- name: environment
+  type: string
+  values:
+    - DEV
+    - UAT
+    - INT
+  default: UAT
+
+- name: collections
+  displayName: 'Collection to Run'
+  type: string
+  default: all
+  values:
+   - Health Check Smoke Tests
+   - Smoke Tests
+   - HeartBeat Tests
+   - Interview API
+   - E2E Test
+    # - Virtual Designer
+   - all
+
+variables:
+- group: qe-test-automation-variables
+
+stages:
+
+# =====================================================
+# STAGE 1 — WARMUP
+# =====================================================
+- stage: WarmUp
+  displayName: "WarmUp Environment - ${{parameters.environment}}"
+  jobs:
+  - job: WarmUpJob
+    displayName: "Run Bruno WarmUp Collection"
+
+    steps:
+
+    - checkout: self
+
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+
+    - script: |
+        sudo dpkg --configure -a
+        sudo apt-get install -f
+        sudo apt-get update
+        sudo apt-get install -y libatomic1
+      displayName: "Repair dpkg & install libatomic"
+
+    - script: npm install -g @usebruno/cli
+      displayName: "Install Bruno CLI"
+
+    - script: mkdir "$(System.DefaultWorkingDirectory)/Results"
+      displayName: "Create Results folder"
+
+    - script: |
+        echo "Starting WarmUp with retry logic..."
+
+        ATTEMPT=1
+        MAX_ATTEMPTS=5
+
+        while [ $ATTEMPT -le $MAX_ATTEMPTS ]
+        do
+          echo "==============================="
+          echo "WarmUp Attempt $ATTEMPT of $MAX_ATTEMPTS"
+          echo "==============================="
+
+          bru run --env ${{parameters.environment}} \
+          --insecure --verbose \
+          --reporter-junit "$(System.DefaultWorkingDirectory)/Results/WarmUpTestsresults.xml" \
+          --reporter-html "$(System.DefaultWorkingDirectory)/Results/WarmUpTestsresults.html"
+
+          EXIT_CODE=$?
+
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "WarmUp Passed on attempt $ATTEMPT"
+            exit 0
+          fi
+
+          if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+            echo "WarmUp Failed. Waiting 2 minutes 30 seconds before retry..."
+            sleep 150
+          fi
+
+          ATTEMPT=$((ATTEMPT+1))
+        done
+
+        echo "WarmUp Failed after $MAX_ATTEMPTS attempts."
+        exit 1
+      displayName: "Run Jumpstarter Bruno WarmUp Tests - ${{parameters.environment}}"
+      workingDirectory: '$(Build.SourcesDirectory)/Backend/BrunoTestScripts/WarmUp'
+
+    - task: PublishTestResults@2
+      displayName: "Publish WarmUp Results"
+      inputs:
+        testResultsFiles: "**/WarmUpTestsresults.xml"
+        searchFolder: "$(System.DefaultWorkingDirectory)/Results"
+        testRunTitle: "Jumpstarter Bruno WarmUp Tests"
+
+    - task: PublishPipelineArtifact@1
+      displayName: "Publish WarmUp HTML Report"
+      inputs:
+        targetPath: "$(System.DefaultWorkingDirectory)/Results/WarmUpTestsresults.html"
+        artifact: "WarmUpHTMLReport-${{parameters.environment}}"
+      condition: always()
+
+# =====================================================
+# STAGE 2 — BRUNO TEST COLLECTIONS (now parallel)
+# Each collection runs as its own job on its own agent, in parallel with
+# the others (subject to available parallel agents in the vmss-low pool).
+# A final ConsolidateResults job waits for all of them, downloads each
+# job's published results, and does the same merge / adaptive-card work
+# that used to run inline at the end of the single sequential job.
+# =====================================================
+- stage: BrunoTests
+  displayName: "Run Bruno Test Collections - ${{parameters.environment}}"
+  dependsOn: WarmUp
+  condition: succeeded()
+
+  jobs:
+
+  # -----------------------------------------------------
+  # Health Check Smoke Tests
+  # -----------------------------------------------------
+  - job: HealthCheckJob
+    displayName: "Health Check Smoke Tests - ${{parameters.environment}}"
+    condition: or(eq('${{ parameters.collections }}','Health Check Smoke Tests'), eq('${{ parameters.collections }}', 'all'))
+    steps:
+    - checkout: self
+
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+
+    - script: |
+        sudo dpkg --configure -a
+        sudo apt-get install -f
+        sudo apt-get update
+        sudo apt-get install -y libatomic1
+      displayName: "Repair dpkg & install libatomic"
+
+    - script: npm install -g @usebruno/cli
+      displayName: "Install Bruno CLI"
+
+    - script: mkdir "$(System.DefaultWorkingDirectory)/Results"
+      displayName: "Create Results folder"
+
+    - script: 'bru run --env ${{parameters.environment}} --insecure --verbose --reporter-junit "$(System.DefaultWorkingDirectory)/Results/HealthCheckSmokeTestsresults.xml" --reporter-html "$(System.DefaultWorkingDirectory)/Results/HealthCheckSmokeTestsresults.html"'
+      displayName: "Run Health Check Smoke Tests - ${{parameters.environment}}"
+      workingDirectory: '$(Build.SourcesDirectory)/Backend/BrunoTestScripts/Health Check Smoke Tests'
+      continueOnError: true
+
+    - task: PublishPipelineArtifact@1
+      displayName: "Publish Health Check results"
+      condition: always()
+      inputs:
+        targetPath: "$(System.DefaultWorkingDirectory)/Results"
+        artifact: "bruno-results-HealthCheck"
+
+  # -----------------------------------------------------
+  # HeartBeat Tests
+  # -----------------------------------------------------
+  - job: HeartBeatJob
+    displayName: "HeartBeat Tests - ${{parameters.environment}}"
+    condition: or(eq('${{ parameters.collections }}','HeartBeat Tests'), eq('${{ parameters.collections }}', 'all'))
+    steps:
+    - checkout: self
+
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+
+    - script: |
+        sudo dpkg --configure -a
+        sudo apt-get install -f
+        sudo apt-get update
+        sudo apt-get install -y libatomic1
+      displayName: "Repair dpkg & install libatomic"
+
+    - script: npm install -g @usebruno/cli
+      displayName: "Install Bruno CLI"
+
+    - script: mkdir "$(System.DefaultWorkingDirectory)/Results"
+      displayName: "Create Results folder"
+
+    - script: 'bru run --env ${{parameters.environment}} --env-var "APIMKEYIMGANA=$(APIMKEYIMGANA_${{parameters.environment}})" --env-var "APIMKEYIMGGEN=$(APIMKEYIMGGEN_${{parameters.environment}})" --insecure --verbose --reporter-junit "$(System.DefaultWorkingDirectory)/Results/HeartbeatTestsresults.xml" --reporter-html "$(System.DefaultWorkingDirectory)/Results/HeartbeatTestsresults.html"'
+      displayName: "Run HeartBeat Tests - ${{parameters.environment}}"
+      workingDirectory: '$(Build.SourcesDirectory)/Backend/BrunoTestScripts/HeartBeat Tests'
+      continueOnError: true
+
+    - task: PublishPipelineArtifact@1
+      displayName: "Publish HeartBeat results"
+      condition: always()
+      inputs:
+        targetPath: "$(System.DefaultWorkingDirectory)/Results"
+        artifact: "bruno-results-HeartBeat"
+
+  # -----------------------------------------------------
+  # Smoke Tests
+  # -----------------------------------------------------
+  - job: SmokeJob
+    displayName: "Smoke Tests - ${{parameters.environment}}"
+    condition: or(eq('${{ parameters.collections }}','Smoke Tests'), eq('${{ parameters.collections }}', 'all'))
+    steps:
+    - checkout: self
+
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+
+    - script: |
+        sudo dpkg --configure -a
+        sudo apt-get install -f
+        sudo apt-get update
+        sudo apt-get install -y libatomic1
+      displayName: "Repair dpkg & install libatomic"
+
+    - script: npm install -g @usebruno/cli
+      displayName: "Install Bruno CLI"
+
+    - script: mkdir "$(System.DefaultWorkingDirectory)/Results"
+      displayName: "Create Results folder"
+
+    - script: 'bru run --env ${{parameters.environment}} --env-var "APIMKEYIMGANA=$(APIMKEYIMGANA_${{parameters.environment}})" --env-var "APIMKEYIMGGEN=$(APIMKEYIMGGEN_${{parameters.environment}})" --insecure --verbose --reporter-junit "$(System.DefaultWorkingDirectory)/Results/SmokeTestsresults.xml" --reporter-html "$(System.DefaultWorkingDirectory)/Results/SmokeTestsresults.html"'
+      displayName: "Run Smoke Tests - ${{parameters.environment}}"
+      workingDirectory: '$(Build.SourcesDirectory)/Backend/BrunoTestScripts/Smoke Tests'
+      continueOnError: true
+
+    - task: PublishPipelineArtifact@1
+      displayName: "Publish Smoke results"
+      condition: always()
+      inputs:
+        targetPath: "$(System.DefaultWorkingDirectory)/Results"
+        artifact: "bruno-results-Smoke"
+
+  # -----------------------------------------------------
+  # Interview API
+  # -----------------------------------------------------
+  - job: InterviewAPIJob
+    displayName: "Interview API Tests - ${{parameters.environment}}"
+    condition: or(eq('${{ parameters.collections }}','Interview API'), eq('${{ parameters.collections }}', 'all'))
+    steps:
+    - checkout: self
+
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+
+    - script: |
+        sudo dpkg --configure -a
+        sudo apt-get install -f
+        sudo apt-get update
+        sudo apt-get install -y libatomic1
+      displayName: "Repair dpkg & install libatomic"
+
+    - script: npm install -g @usebruno/cli
+      displayName: "Install Bruno CLI"
+
+    - script: mkdir "$(System.DefaultWorkingDirectory)/Results"
+      displayName: "Create Results folder"
+
+    - script: 'bru run --env ${{parameters.environment}} --env-var "APIMKEYIMGANA=$(APIMKEYIMGANA_${{parameters.environment}})" --env-var "APIMKEYIMGGEN=$(APIMKEYIMGGEN_${{parameters.environment}})" --insecure --verbose --reporter-junit "$(System.DefaultWorkingDirectory)/Results/InterviewAPITestsresults.xml" --reporter-html "$(System.DefaultWorkingDirectory)/Results/InterviewAPITestsresults.html"'
+      displayName: "Run Interview API Tests - ${{parameters.environment}}"
+      workingDirectory: '$(Build.SourcesDirectory)/Backend/BrunoTestScripts/Interview API'
+      continueOnError: true
+
+    - task: PublishPipelineArtifact@1
+      displayName: "Publish Interview API results"
+      condition: always()
+      inputs:
+        targetPath: "$(System.DefaultWorkingDirectory)/Results"
+        artifact: "bruno-results-InterviewAPI"
+
+  # -----------------------------------------------------
+  # E2E Test
+  # -----------------------------------------------------
+  - job: E2EJob
+    displayName: "E2E API Tests - ${{parameters.environment}}"
+    condition: or(eq('${{ parameters.collections }}','E2E Test'), eq('${{ parameters.collections }}', 'all'))
+    steps:
+    - checkout: self
+
+    - task: UseNode@1
+      inputs:
+        version: "20.x"
+
+    - script: |
+        sudo dpkg --configure -a
+        sudo apt-get install -f
+        sudo apt-get update
+        sudo apt-get install -y libatomic1
+      displayName: "Repair dpkg & install libatomic"
+
+    - script: npm install -g @usebruno/cli
+      displayName: "Install Bruno CLI"
+
+    - script: mkdir "$(System.DefaultWorkingDirectory)/Results"
+      displayName: "Create Results folder"
+
+    - script: 'bru run --env ${{parameters.environment}} --env-var "APIMKEYIMGANA=$(APIMKEYIMGANA_${{parameters.environment}})" --env-var "APIMKEYIMGGEN=$(APIMKEYIMGGEN_${{parameters.environment}})" --env-var "client_id=$(client_id)" --env-var "client_secret=$(client_secret)" --insecure --verbose --reporter-junit "$(System.DefaultWorkingDirectory)/Results/E2ETestsresults.xml" --reporter-html "$(System.DefaultWorkingDirectory)/Results/E2ETestsresults.html"'
+      displayName: "Run E2E API Tests - ${{parameters.environment}}"
+      workingDirectory: '$(Build.SourcesDirectory)/Backend/BrunoTestScripts/E2E Test'
+      continueOnError: true
+
+    - task: PublishPipelineArtifact@1
+      displayName: "Publish E2E results"
+      condition: always()
+      inputs:
+        targetPath: "$(System.DefaultWorkingDirectory)/Results"
+        artifact: "bruno-results-E2E"
+
+  # -----------------------------------------------------
+  # Virtual Designer — left disabled, same as the original pipeline.
+  # Uncomment (and add "VirtualDesignerJob" to ConsolidateResults'
+  # dependsOn below) to bring it back as its own parallel job.
+  # -----------------------------------------------------
+  # - job: VirtualDesignerJob
+  #   displayName: "Virtual Designer Tests - ${{parameters.environment}}"
+  #   condition: or(eq('${{ parameters.collections }}','Virtual Designer'), eq('${{ parameters.collections }}', 'all'))
+  #   steps:
+  #   - checkout: self
+  #   - task: UseNode@1
+  #     inputs:
+  #       version: "20.x"
+  #   - script: |
+  #       sudo dpkg --configure -a
+  #       sudo apt-get install -f
+  #       sudo apt-get update
+  #       sudo apt-get install -y libatomic1
+  #     displayName: "Repair dpkg & install libatomic"
+  #   - script: npm install -g @usebruno/cli
+  #     displayName: "Install Bruno CLI"
+  #   - script: mkdir "$(System.DefaultWorkingDirectory)/Results"
+  #     displayName: "Create Results folder"
+  #   - script: 'bru run --env ${{parameters.environment}} --env-var "APIMKEYIMGANA=$(APIMKEYIMGANA_${{parameters.environment}})" --env-var "APIMKEYIMGGEN=$(APIMKEYIMGGEN_${{parameters.environment}})" --insecure --verbose --reporter-junit "$(System.DefaultWorkingDirectory)/Results/VirtualDesignerTestsresults.xml" --reporter-html "$(System.DefaultWorkingDirectory)/Results/VirtualDesignerTestsresults.html"'
+  #     displayName: "Run Virtual Designer Tests - ${{parameters.environment}}"
+  #     workingDirectory: '$(Build.SourcesDirectory)/Backend/BrunoTestScripts/Virtual Designer'
+  #     continueOnError: true
+  #   - task: PublishPipelineArtifact@1
+  #     displayName: "Publish Virtual Designer results"
+  #     condition: always()
+  #     inputs:
+  #       targetPath: "$(System.DefaultWorkingDirectory)/Results"
+  #       artifact: "bruno-results-VirtualDesigner"
+
+  # -----------------------------------------------------
+  # Consolidate — waits for all collection jobs, downloads each one's
+  # published results, then does the same merge / Teams work that used
+  # to run inline at the end of the single sequential job.
+  # -----------------------------------------------------
+  - job: ConsolidateResults
+    displayName: "Consolidate Results & Notify - ${{parameters.environment}}"
+    dependsOn:
+      - HealthCheckJob
+      - HeartBeatJob
+      - SmokeJob
+      - InterviewAPIJob
+      - E2EJob
+    condition: always()
+    steps:
+
+    - task: DownloadPipelineArtifact@2
+      displayName: "Download all Bruno results"
+      condition: always()
+      inputs:
+        buildType: 'current'
+        targetPath: '$(Pipeline.Workspace)/all-bruno-results'
+
+    - script: |
+        set -uo pipefail
+        mkdir -p "$(System.DefaultWorkingDirectory)/Results"
+
+        echo "Flattening downloaded Bruno result artifacts:"
+        find "$(Pipeline.Workspace)/all-bruno-results" -maxdepth 2
+
+        for artifactDir in "$(Pipeline.Workspace)/all-bruno-results"/bruno-results-*/; do
+          [ -d "$artifactDir" ] || continue
+          cp -R "$artifactDir"* "$(System.DefaultWorkingDirectory)/Results/" 2>/dev/null || true
+        done
+
+        echo "Flattened Results folder:"
+        find "$(System.DefaultWorkingDirectory)/Results" -maxdepth 1
+      displayName: "Flatten results into a single Results folder"
+      condition: always()
+
+    # =====================================================
+    # CONSOLIDATE RESULTS: single JUnit XML + single HTML report
+    # =====================================================
+    - script: |
+        python3 - <<'EOF'
+        import base64
+        import glob
+        import json
+        import os
+        import re
+        import xml.etree.ElementTree as ET
+        from datetime import datetime, timezone
+
+        results_dir = os.environ["RESULTS_DIR"]
+        consolidated_dir = os.path.join(results_dir, "Consolidated")
+        os.makedirs(consolidated_dir, exist_ok=True)
+
+        # Map raw report file names to collection labels in fixed display order.
+        collection_files = [
+            ("HealthCheckSmokeTestsresults", "Health Check Smoke Tests"),
+            ("HeartbeatTestsresults", "HeartBeat Tests"),
+            ("SmokeTestsresults", "Smoke Tests"),
+            ("InterviewAPITestsresults", "Interview API"),
+            ("E2ETestsresults", "E2E Test"),
+            ("VirtualDesignerTestsresults", "Virtual Designer"),
+        ]
+
+        # =====================================================
+        # 1. CONSOLIDATE JUNIT XML
+        # =====================================================
+        merged_root = ET.Element("testsuites")
+        suite_summaries = []
+
+        for basename, label in collection_files:
+            path = os.path.join(results_dir, basename + ".xml")
+            if not os.path.exists(path):
+                continue
+
+            try:
+                root = ET.parse(path).getroot()
+            except Exception as exc:
+                print(f"Warning: could not parse JUnit file {path}: {exc}")
+                continue
+
+            suites = [root] if root.tag == "testsuite" else root.findall("testsuite")
+            for suite in suites:
+                original_name = suite.get("name", label)
+                suite.set("name", f"{label} - {original_name}")
+                merged_root.append(suite)
+
+                tests = int(suite.get("tests", 0))
+                failures = int(suite.get("failures", 0))
+                errors = int(suite.get("errors", 0))
+                skipped = int(suite.get("skipped", 0))
+                passed = tests - failures - errors - skipped
+
+                suite_summaries.append({
+                    "tests": tests,
+                    "passed": passed,
+                    "failures": failures,
+                    "errors": errors,
+                    "skipped": skipped,
+                })
+
+        merged_xml_path = os.path.join(consolidated_dir, "ConsolidatedTestResults.xml")
+        ET.ElementTree(merged_root).write(
+            merged_xml_path,
+            encoding="utf-8",
+            xml_declaration=True
+        )
+
+        total = sum(s["tests"] for s in suite_summaries)
+        passed_total = sum(s["passed"] for s in suite_summaries)
+        failed_total = sum(s["failures"] + s["errors"] for s in suite_summaries)
+        skipped_total = sum(s["skipped"] for s in suite_summaries)
+        pass_pct = round((passed_total / total * 100), 2) if total else 0
+
+        # =====================================================
+        # 2. CONSOLIDATE BRUNO HTML IN THE SAME FORMAT AS E2E
+        # =====================================================
+        #
+        # Every Bruno --reporter-html file contains the same Vue/Naive-UI
+        # application and a base64-encoded rawResults JSON payload.
+        #
+        # Instead of creating custom HTML, use one Bruno HTML report as the
+        # template and replace only its embedded payload with the merged runs.
+        # This preserves:
+        #   - Bruno run dashboard
+        #   - Summary and Requests tabs
+        #   - Light / Dark mode
+        #   - Request / response headers and bodies
+        #   - Assertions and tests
+        #   - Failed-only filtering
+        #
+        payload_pattern = re.compile(
+            r"(const\s+rawResults\s*=\s*JSON\.parse\(decodeBase64\(')([^']+)('\)\);)"
+        )
+
+        merged_iterations = []
+        template_html = None
+        bruno_version = None
+        latest_completion = None
+
+        for basename, label in collection_files:
+            html_path = os.path.join(results_dir, basename + ".html")
+            if not os.path.exists(html_path):
+                continue
+
+            try:
+                with open(html_path, "r", encoding="utf-8") as report_file:
+                    report_html = report_file.read()
+
+                match = payload_pattern.search(report_html)
+                if not match:
+                    print(f"Warning: Bruno payload was not found in {html_path}")
+                    continue
+
+                raw = json.loads(
+                    base64.b64decode(match.group(2)).decode("utf-8")
+                )
+
+                # Prefer E2E as the shell because it is the target format.
+                if template_html is None or basename == "E2ETestsresults":
+                    template_html = report_html
+
+                if raw.get("version"):
+                    bruno_version = raw["version"]
+
+                completion = raw.get("runCompletionTime")
+                if completion and (latest_completion is None or completion > latest_completion):
+                    latest_completion = completion
+
+                for iteration in raw.get("results", []):
+                    # Preserve a stable collection/test-suite label for the
+                    # consolidated dashboard. The UI uses this instead of
+                    # displaying generic Iteration 1, Iteration 2, etc.
+                    iteration["iterationIndex"] = len(merged_iterations)
+                    iteration["suiteName"] = label
+
+                    # Keep the original request details and add the collection
+                    # label to the displayed test filename when available.
+                    for result in iteration.get("results", []):
+                        test = result.get("test")
+                        if isinstance(test, dict) and test.get("filename"):
+                            filename = test["filename"]
+                            if not filename.startswith(f"[{label}] "):
+                                test["filename"] = f"[{label}] {filename}"
+
+                    merged_iterations.append(iteration)
+
+            except Exception as exc:
+                print(f"Warning: could not merge Bruno HTML {html_path}: {exc}")
+
+        if template_html is None:
+            raise RuntimeError(
+                "No Bruno HTML reports were available to build ConsolidatedTestResults.html"
+            )
+
+        merged_payload = {
+            "results": merged_iterations,
+            "version": bruno_version or "usebruno",
+            "environment": os.environ["PIPELINE_ENV"],
+            "runCompletionTime": latest_completion
+                or datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        }
+
+        encoded_payload = base64.b64encode(
+            json.dumps(merged_payload, separators=(",", ":")).encode("utf-8")
+        ).decode("ascii")
+
+        # Replace Bruno's generic iteration labels with the consolidated
+        # test-suite name and move the request filter to the root Requests tab.
+
+        # Requests tab: add ONE global Show All / Only Failed switch and pass
+        # its state into every suite card.
+        requests_pattern = re.compile(
+            r'<n-tab-pane name="requests" tab="Requests">.*?</n-tab-pane>',
+            re.DOTALL
+        )
+        requests_match = requests_pattern.search(template_html)
+        if requests_match:
+            requests_new = """                <n-tab-pane name="requests" tab="Requests">
+                  <n-flex justify="center" vertical>
+                    <n-flex justify="end" style="margin-bottom: 20px;">
+                      <n-switch v-model:value="onlyFailed" :rail-style="failedFilterRailStyle">
+                        <template #checked> Only Failed </template>
+                        <template #unchecked> Show All </template>
+                      </n-switch>
+                    </n-flex>
+                    <x-requests
+                      v-for="(result, index) in res"
+                      :res="result"
+                      :only-failed="onlyFailed"
+                      :key="index"
+                    ></x-requests>
+                  </n-flex>
+                </n-tab-pane>"""
+            template_html = (
+                template_html[:requests_match.start()]
+                + requests_new
+                + template_html[requests_match.end():]
+            )
+        else:
+            print("Warning: Requests tab was not found")
+
+        # Remove Bruno's per-suite Show All / Only Failed switch.
+        per_suite_switch = re.compile(
+            r'\s*<n-switch\s+v-model:value="onlyFailed"\s+:rail-style="railStyle"\s*>.*?</n-switch>\s*',
+            re.DOTALL
+        )
+        template_html, removed = per_suite_switch.subn('', template_html, count=1)
+        if removed != 1:
+            print("Warning: per-suite filter switch was not removed")
+
+        # Summary card: use the actual Test Suite name instead of Iteration N.
+        template_html = template_html.replace(
+            "          const iterationIndex = Number(props.res.iterationIndex) + 1;\n",
+            "",
+            1
+        )
+        template_html = template_html.replace(
+            "iterationTitle: 'Iteration ' + iterationIndex",
+            "iterationTitle: props.res.suiteName || 'Test Suite'",
+            1
+        )
+
+        # Requests card: receive the root-level filter as a prop and use the
+        # Test Suite name as the card title.
+        requests_component_pattern = re.compile(
+            r"app\.component\('x-requests', \{.*?\n      \}\);",
+            re.DOTALL
+        )
+        requests_component_match = requests_component_pattern.search(template_html)
+        if requests_component_match:
+            requests_component_new = """      app.component('x-requests', {
+        template: '#requests-component',
+        props: ['res', 'onlyFailed'],
+        setup(props) {
+          const filteredResults = computed(() => {
+            return getFilteredRequestResults(props?.res?.results, props.onlyFailed);
+          });
+          return {
+            results: filteredResults,
+            iterationTitle: props.res.suiteName || 'Test Suite'
+          };
+        }
+        });"""
+            template_html = (
+                template_html[:requests_component_match.start()]
+                + requests_component_new
+                + template_html[requests_component_match.end():]
+            )
+        else:
+            print("Warning: x-requests component was not found")
+
+        # Root App owns the single global filter state.
+        app_marker = "          const currentTab = ref('summary');"
+        app_replacement = """          const currentTab = ref('summary');
+          const onlyFailed = ref(false);
+          const failedFilterRailStyle = ({ checked }) => {
+            const style = {};
+            if (checked) {
+              style.background = '#d03050';
+            }
+            return style;
+          };"""
+        if app_marker in template_html:
+            template_html = template_html.replace(app_marker, app_replacement, 1)
+        else:
+            print("Warning: root App currentTab marker not found")
+
+        # Expose the global filter to the Requests tab template.
+        return_marker = "            currentTab,\n            brunoVersion,"
+        return_replacement = "            currentTab,\n            onlyFailed,\n            failedFilterRailStyle,\n            brunoVersion,"
+        if return_marker in template_html:
+            template_html = template_html.replace(return_marker, return_replacement, 1)
+        else:
+            print("Warning: root App return block was not found")
+
+        consolidated_html, replacements = payload_pattern.subn(
+            lambda m: m.group(1) + encoded_payload + m.group(3),
+            template_html,
+            count=1
+        )
+
+        if replacements != 1:
+            raise RuntimeError(
+                f"Expected to replace one Bruno payload, replaced {replacements}"
+            )
+
+        merged_html_path = os.path.join(
+            consolidated_dir,
+            "ConsolidatedTestResults.html"
+        )
+        with open(merged_html_path, "w", encoding="utf-8") as output_file:
+            output_file.write(consolidated_html)
+
+        print(
+            f"Consolidated {len(merged_iterations)} Bruno iteration(s) and "
+            f"{len(suite_summaries)} JUnit suite(s): "
+            f"{total} tests, {passed_total} passed, {failed_total} failed, "
+            f"{skipped_total} skipped ({pass_pct}%)."
+        )
+
+        # Keep existing Teams/adaptive-card summary contract unchanged.
+        with open(os.path.join(consolidated_dir, "summary.env"), "w") as summary_file:
+            summary_file.write(
+                f"TOTAL={total}\n"
+                f"PASSED={passed_total}\n"
+                f"FAILED={failed_total}\n"
+                f"SKIPPED={skipped_total}\n"
+                f"PASS_PCT={pass_pct}\n"
+            )
+        EOF
+      displayName: "Consolidate JUnit XML & Bruno HTML Reports"
+      env:
+        RESULTS_DIR: "$(System.DefaultWorkingDirectory)/Results"
+        PIPELINE_ENV: ${{parameters.environment}}
+        PIPELINE_NAME: "$(Build.DefinitionName)"
+        RUN_ID: "$(Build.BuildId)"
+      condition: always()
+
+    - task: PublishTestResults@2
+      displayName: "Publish Consolidated JUnit Results - ${{parameters.environment}}"
+      inputs:
+        testResultsFiles: "**/ConsolidatedTestResults.xml"
+        searchFolder: "$(System.DefaultWorkingDirectory)/Results/Consolidated"
+        testRunTitle: "Jumpstarter Bruno Consolidated Tests - ${{parameters.environment}}"
+      condition: always()
+
+    - task: PublishPipelineArtifact@1
+      displayName: "Publish Consolidated HTML & XML Report - ${{parameters.environment}}"
+      inputs:
+        targetPath: "$(System.DefaultWorkingDirectory)/Results/Consolidated"
+        artifact: "ConsolidatedBrunoReport-${{parameters.environment}}-$(Build.BuildId)"
+      condition: always()
+
+    # =====================================================
+    # BUILD ADAPTIVE CARD FROM CONSOLIDATED SUMMARY
+    # =====================================================
+    - script: |
+        source "$(System.DefaultWorkingDirectory)/Results/Consolidated/summary.env"
+
+        python3 - <<EOF
+        import json, os
+
+        total = int("${TOTAL:-0}")
+        passed = int("${PASSED:-0}")
+        failed = int("${FAILED:-0}")
+        skipped = int("${SKIPPED:-0}")
+        pass_pct = "${PASS_PCT:-0}"
+
+        pipeline_name = os.environ["PIPELINE_NAME"]
+        run_id = os.environ["RUN_ID"]
+        environment = os.environ["PIPELINE_ENV"]
+        build_results_url = os.environ["BUILD_RESULTS_URL"]
+        artifacts_url = os.environ["BUILD_ARTIFACTS_URL"]
+
+        overall_ok = (failed == 0 and total > 0)
+        status_icon = "✅" if overall_ok else "❌"
+        status_text = "All Tests Passed" if overall_ok else f"{failed} Test(s) Failed"
+        status_color = "Good" if overall_ok else "Attention"
+
+        adaptive_card = {
+            "type": "AdaptiveCard",
+            "\$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "version": "1.4",
+            "body": [
+                {
+                    "type": "TextBlock",
+                    "text": f"Daily Bruno Pipeline Test Summary - {environment}",
+                    "weight": "Bolder",
+                    "size": "Medium"
+                },
+                {
+                    "type": "TextBlock",
+                    "text": f"{status_icon} {status_text}",
+                    "weight": "Bolder",
+                    "color": status_color,
+                    "spacing": "Small"
+                },
+                {
+                    "type": "FactSet",
+                    "facts": [
+                        {"title": "🔧 Pipeline:", "value": pipeline_name},
+                        {"title": "🆔 Run ID:", "value": run_id},
+                        {"title": "🌐 Environment:", "value": environment},
+                        {"title": "📊 Total Tests:", "value": str(total)},
+                        {"title": "✅ Total Passed:", "value": str(passed)},
+                        {"title": "❌ Total Failed:", "value": str(failed)},
+                        {"title": "📈 Pass %:", "value": f"{pass_pct}%"}
+                    ]
+                }
+            ],
+            "actions": [
+                {
+                    "type": "Action.OpenUrl",
+                    "title": "📂 View Consolidated JUnit Results",
+                    "url": build_results_url
+                },
+                {
+                    "type": "Action.OpenUrl",
+                    "title": "🌐 View Consolidated HTML Report",
+                    "url": artifacts_url
+                }
+            ]
+        }
+
+        with open(os.path.join(os.environ["RESULTS_DIR"], "teams_card.json"), "w") as f:
+            json.dump(adaptive_card, f)
+
+        print(json.dumps(adaptive_card, indent=2))
+        EOF
+      displayName: "Build Adaptive Card"
+      env:
+        RESULTS_DIR: "$(System.DefaultWorkingDirectory)/Results"
+        PIPELINE_NAME: "$(Build.DefinitionName)"
+        RUN_ID: "$(Build.BuildId)"
+        PIPELINE_ENV: ${{parameters.environment}}
+        BUILD_RESULTS_URL: "$(System.CollectionUri)$(System.TeamProjectId)/_build/results?buildId=$(Build.BuildId)&view=ms.vss-test-web.build-test-results-tab"
+        BUILD_ARTIFACTS_URL: "$(System.CollectionUri)$(System.TeamProjectId)/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts"
+      condition: always()
+
+    # =====================================================
+    # POST ADAPTIVE CARD TO TEAMS
+    # =====================================================
+    - script: |
+        CARD_FILE="$(System.DefaultWorkingDirectory)/Results/teams_card.json"
+
+        case "${{parameters.environment}}" in
+          INT)
+            WEBHOOK_URL="$TEAMS_WEBHOOK_URL_INT"
+            ;;
+          UAT)
+            WEBHOOK_URL="$TEAMS_WEBHOOK_URL_UAT"
+            ;;
+          *)
+            echo "No Teams webhook configured for environment '${{parameters.environment}}'. Defaulting to UAT webhook."
+            WEBHOOK_URL="$TEAMS_WEBHOOK_URL_UAT"
+            ;;
+        esac
+
+        if [ -z "$WEBHOOK_URL" ]; then
+          echo "Resolved webhook URL is empty. Skipping Teams post."
+          exit 0
+        fi
+
+        if [ ! -f "$CARD_FILE" ]; then
+          echo "Adaptive Card file not found, skipping Teams post."
+          exit 0
+        fi
+
+        cat "$CARD_FILE"
+
+        curl -X POST "$WEBHOOK_URL" \
+          -H "Content-Type: application/json" \
+          -d @"$CARD_FILE"
+      displayName: "Post Adaptive Card to Teams"
+      condition: always()
+      env:
+        TEAMS_WEBHOOK_URL_INT: $(teams_webhook_url_INT)
+        TEAMS_WEBHOOK_URL_UAT: $(teams_webhook_url_UAT)

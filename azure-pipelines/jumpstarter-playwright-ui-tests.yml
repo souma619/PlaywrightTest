@@ -1,0 +1,327 @@
+trigger: none
+
+parameters:
+- name: environment # required
+  type: string
+  values:
+    - dev
+    - uat
+    - int
+  default: uat
+
+- name: sourceBuildId
+  type: number
+  default: 0
+
+variables:
+- group: qe-test-automation-variables
+
+jobs:
+- job: RunTests
+  timeoutInMinutes: 180
+  pool:
+    name: vmss-low
+
+  steps:
+  - bash: |
+      if [ -z "$SOURCE_BUILD_ID" ] || [ "$SOURCE_BUILD_ID" -le 0 ]; then
+        echo "##vso[task.setvariable variable=isValidBuild;isOutput=false]false"
+        exit 1
+      else
+        echo "##vso[task.setvariable variable=isValidBuild;isOutput=false]true"
+      fi
+    displayName: 'Validate SourceBuildID'
+    env:
+      SOURCE_BUILD_ID: ${{ parameters.sourceBuildId }}
+
+  - task: DownloadPipelineArtifact@2
+    condition: and(succeeded(), eq(variables.isValidBuild, 'true'))
+    inputs:
+      buildType: 'specific'
+      project: 'Digital Product and Innovation'
+      pipeline: 'jumpstarter-static-website-${{ parameters.environment }}'
+      #branchName: 'main'
+      runId: ${{ parameters.sourceBuildId }}
+      targetPath: '$(Pipeline.Workspace)/downloaded'
+
+  - script: |
+      echo "Locating final inner zip file (with dist)..."
+      # Define the extraction directory
+      EXTRACT_DIR="$(Pipeline.Workspace)/extracted_dist"
+      mkdir -p "$EXTRACT_DIR"
+
+      # Step 1: Find the deepest zip file (excluding *_configs.zip)
+      INNER_ZIP=$(find "$(Pipeline.Workspace)/downloaded" -type f -name "*.zip" ! -iname "*configs*" | awk '{ print length, $0 }' | sort -nr | cut -d" " -f2- | head -n1)
+      echo "Inner zip found: $INNER_ZIP"
+
+      # Step 2: Unzip to the extraction directory
+      unzip "$INNER_ZIP" -d "$EXTRACT_DIR"
+      echo "Contents of extracted_dist:"
+      find "$EXTRACT_DIR" -type d
+
+      # Step 3: Verify the dist folder exists
+      if [ ! -d "$EXTRACT_DIR/dist" ]; then
+        echo "dist folder not found!"
+        exit 1
+      fi
+      echo "dist/ extracted to $EXTRACT_DIR/dist"
+    displayName: 'Extract zip and validate dist folder'
+
+  # Start a local server (e.g., http-server) to host the built files
+  - script: |
+      cd $(Pipeline.Workspace)/extracted_dist/dist
+      npm install -g http-server
+      http-server -p 3000 &
+    displayName: 'Start local server'
+
+  - task: UseNode@1
+    inputs:
+      version: "20.x"
+    displayName: 'Install Node.js'
+
+  - script: |
+       echo "Project Directory:$(System.DefaultWorkingDirectory)"
+       echo "PlayWright Directory:$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests"
+       sudo rm -f /var/lib/apt/lists/lock
+       sudo rm -f /var/lib/dpkg/lock
+       sudo rm -f /var/lib/dpkg/lock-frontend
+       sudo dpkg --configure -a
+       sudo apt-get clean
+       sudo apt-get update --fix-missing
+       sudo apt-get install -f
+       npm install @playwright/test
+       npm install pdf-parse
+       npx playwright install --with-deps
+    workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+    displayName: 'Install Playwright Browsers'
+
+  - script: |
+       npx playwright test smokePage_test.spec.ts
+    workingDirectory: $(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests
+    displayName: 'Run Playwright Tests'
+    env:
+     environment: ${{parameters.environment}}
+     grant_type: $(grant_type)
+     client_id_int: $(client_id_int)
+     client_secret_int: $(client_secret_int)
+     client_id_uat: $(client_id_uat)
+     client_secret_uat: $(client_secret_uat)
+     resource: $(resource)
+     base_url: $(base_url)
+     user_management_url: $(user_management_url)
+     createEmail: $(createEmail)
+     password: $(password)
+     pat: $(pat)
+     base_url_iam_initial: $(base_url_iam_initial)
+     base_url_iam_final: $(base_url_iam_final)
+     audience_initial: $(audience_initial)
+     audience_final: $(audience_final)
+     CI: true # Run in headless mode
+    continueOnError: true
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'Frontend/PlaywrightTests/playwright-report/html-report'
+      artifactName: 'HTML Report'
+    continueOnError: true
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results/junit-results.xml' # Path to JUnit report
+      testRunTitle: 'Playwright JUnit Results — ${{ parameters.environment }}'
+      failTaskOnFailedTests: false
+    displayName : 'Publish JUnit Report'
+    continueOnError: true
+
+  # =====================================================
+  # COMPUTE TEST SUMMARY FROM JUNIT XML
+  # =====================================================
+  - script: |
+      python3 - <<'EOF'
+      import glob
+      import os
+      import xml.etree.ElementTree as ET
+
+      results_dir = os.environ["RESULTS_DIR"]
+
+      total = 0
+      passed = 0
+      failed = 0
+      skipped = 0
+
+      xml_files = glob.glob(os.path.join(results_dir, "junit-results*.xml"))
+      if not xml_files:
+          print(f"Warning: no JUnit XML files found under {results_dir}")
+
+      for xml_file in xml_files:
+          try:
+              root = ET.parse(xml_file).getroot()
+          except Exception as exc:
+              print(f"Warning: could not parse JUnit file {xml_file}: {exc}")
+              continue
+
+          suites = [root] if root.tag == "testsuite" else root.findall(".//testsuite")
+          for suite in suites:
+              tests = int(suite.get("tests", 0))
+              failures = int(suite.get("failures", 0))
+              errors = int(suite.get("errors", 0))
+              skip = int(suite.get("skipped", 0))
+
+              total += tests
+              failed += failures + errors
+              skipped += skip
+              passed += tests - failures - errors - skip
+
+      pass_pct = round((passed / total * 100), 2) if total else 0
+
+      os.makedirs(results_dir, exist_ok=True)
+      with open(os.path.join(results_dir, "summary.env"), "w") as summary_file:
+          summary_file.write(
+              f"TOTAL={total}\n"
+              f"PASSED={passed}\n"
+              f"FAILED={failed}\n"
+              f"SKIPPED={skipped}\n"
+              f"PASS_PCT={pass_pct}\n"
+          )
+
+      print(
+          f"Summary: {total} tests, {passed} passed, {failed} failed, "
+          f"{skipped} skipped ({pass_pct}%)."
+      )
+      EOF
+    displayName: 'Compute Test Summary from JUnit XML'
+    env:
+      RESULTS_DIR: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+    condition: succeededOrFailed()
+
+  # =====================================================
+  # BUILD ADAPTIVE CARD FROM SUMMARY
+  # =====================================================
+  - script: |
+      source "$RESULTS_DIR/summary.env"
+
+      python3 - <<EOF
+      import json, os
+
+      total = int("${TOTAL:-0}")
+      passed = int("${PASSED:-0}")
+      failed = int("${FAILED:-0}")
+      skipped = int("${SKIPPED:-0}")
+      pass_pct = "${PASS_PCT:-0}"
+
+      pipeline_name = os.environ["PIPELINE_NAME"]
+      run_id = os.environ["RUN_ID"]
+      environment = os.environ["PIPELINE_ENV"]
+      build_results_url = os.environ["BUILD_RESULTS_URL"]
+      artifacts_url = os.environ["BUILD_ARTIFACTS_URL"]
+
+      overall_ok = (failed == 0 and total > 0)
+      status_icon = "✅" if overall_ok else "❌"
+      status_text = "All Tests Passed" if overall_ok else f"{failed} Test(s) Failed"
+      status_color = "Good" if overall_ok else "Attention"
+
+      adaptive_card = {
+          "type": "AdaptiveCard",
+          "\$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+          "version": "1.4",
+          "body": [
+              {
+                  "type": "TextBlock",
+                  "text": f"Playwright UI Smoke Test Summary - {environment}",
+                  "weight": "Bolder",
+                  "size": "Medium"
+              },
+              {
+                  "type": "TextBlock",
+                  "text": f"{status_icon} {status_text}",
+                  "weight": "Bolder",
+                  "color": status_color,
+                  "spacing": "Small"
+              },
+              {
+                  "type": "FactSet",
+                  "facts": [
+                      {"title": "🔧 Pipeline:", "value": pipeline_name},
+                      {"title": "🆔 Run ID:", "value": run_id},
+                      {"title": "🌐 Environment:", "value": environment},
+                      {"title": "📊 Total Tests:", "value": str(total)},
+                      {"title": "✅ Total Passed:", "value": str(passed)},
+                      {"title": "❌ Total Failed:", "value": str(failed)},
+                      {"title": "⏭️ Skipped:", "value": str(skipped)},
+                      {"title": "📈 Pass %:", "value": f"{pass_pct}%"}
+                  ]
+              }
+          ],
+          "actions": [
+              {
+                  "type": "Action.OpenUrl",
+                  "title": "📂 View JUnit Results",
+                  "url": build_results_url
+              },
+              {
+                  "type": "Action.OpenUrl",
+                  "title": "🌐 View HTML Report",
+                  "url": artifacts_url
+              }
+          ]
+      }
+
+      with open(os.path.join(os.environ["RESULTS_DIR"], "teams_card.json"), "w") as f:
+          json.dump(adaptive_card, f)
+
+      print(json.dumps(adaptive_card, indent=2))
+      EOF
+    displayName: 'Build Adaptive Card'
+    env:
+      RESULTS_DIR: '$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results'
+      PIPELINE_NAME: '$(Build.DefinitionName)'
+      RUN_ID: '$(Build.BuildId)'
+      PIPELINE_ENV: ${{ parameters.environment }}
+      BUILD_RESULTS_URL: '$(System.CollectionUri)$(System.TeamProjectId)/_build/results?buildId=$(Build.BuildId)&view=ms.vss-test-web.build-test-results-tab'
+      BUILD_ARTIFACTS_URL: '$(System.CollectionUri)$(System.TeamProjectId)/_build/results?buildId=$(Build.BuildId)&view=artifacts&pathAsName=false&type=publishedArtifacts'
+    condition: succeededOrFailed()
+
+  # =====================================================
+  # POST ADAPTIVE CARD TO TEAMS
+  # =====================================================
+  - script: |
+      CARD_FILE="$(System.DefaultWorkingDirectory)/Frontend/PlaywrightTests/test-results/teams_card.json"
+
+      case "${{ parameters.environment }}" in
+        dev)
+          WEBHOOK_URL="$TEAMS_WEBHOOK_URL_DEV"
+          ;;
+        int)
+          WEBHOOK_URL="$TEAMS_WEBHOOK_URL_INT"
+          ;;
+        uat)
+          WEBHOOK_URL="$TEAMS_WEBHOOK_URL_UAT"
+          ;;
+        *)
+          echo "No Teams webhook configured for environment '${{ parameters.environment }}'. Defaulting to UAT webhook."
+          WEBHOOK_URL="$TEAMS_WEBHOOK_URL_UAT"
+          ;;
+      esac
+
+      if [ -z "$WEBHOOK_URL" ]; then
+        echo "Resolved webhook URL is empty. Skipping Teams post."
+        exit 0
+      fi
+
+      if [ ! -f "$CARD_FILE" ]; then
+        echo "Adaptive Card file not found, skipping Teams post."
+        exit 0
+      fi
+
+      cat "$CARD_FILE"
+
+      curl -X POST "$WEBHOOK_URL" \
+        -H "Content-Type: application/json" \
+        -d @"$CARD_FILE"
+    displayName: 'Post Adaptive Card to Teams'
+    condition: succeededOrFailed()
+    env:
+      TEAMS_WEBHOOK_URL_DEV: $(teams_webhook_url_DEV)
+      TEAMS_WEBHOOK_URL_UAT: $(teams_webhook_url_UAT)
+      TEAMS_WEBHOOK_URL_INT: $(teams_webhook_url_INT)
