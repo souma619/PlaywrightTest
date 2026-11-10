@@ -1,0 +1,81 @@
+<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="104.52790399999999">
+<testsuite name="ui_tests\SmokePageTests\smokePage_test.spec.ts" timestamp="2026-10-14T14:03:34.699Z" hostname="chromium" tests="1" failures="0" skipped="0" time="89.524" errors="0">
+<testcase name="SmokePage - parallel test cases › Connect Now Smoke - Verify Virtual Designer experience(TestCaseId:36490)" classname="ui_tests\SmokePageTests\smokePage_test.spec.ts" time="89.524">
+<system-out>
+<![CDATA[>>>>>>>>>>>Starting test: Connect Now Smoke - Verify Virtual Designer experience<<<<<<<<<<
+Wed, 14 Oct 2026 14:03:43 GMT - LOG - denyBrowserLocationPermission: adding geolocation denial init script
+Wed, 14 Oct 2026 14:03:43 GMT - LOG - launchJumpstarterStartPage: setting viewport to 1920x1080
+Wed, 14 Oct 2026 14:03:43 GMT - LOG - launchJumpstarterStartPage: navigating to Jumpstarter secret URL
+launchJumpstarterStartPage: waiting for /start URL
+Wed, 14 Oct 2026 14:03:45 GMT - DEBUG - [oaiq] event queued {eventName: openai::sdk_init, eventId: dfde90aa-94a8-4581-be28-8ee75696ba5a, pendingEventCount: 1, initialized: true}
+Wed, 14 Oct 2026 14:03:45 GMT - DEBUG - [oaiq] event queued {eventName: oai::diagnostic, eventId: 93c70e71-8115-46cf-931f-5921f9ec6b57, pendingEventCount: 2, initialized: true}
+Cookie consent accepted and banner dismissed.
+Wed, 14 Oct 2026 14:03:47 GMT - LOG - useMutation: refreshToken
+Wed, 14 Oct 2026 14:03:47 GMT - DEBUG - [oaiq] queue flush started {reason: scheduler, transport: fetch, eventCount: 2, eventNames: Array(2)}
+Wed, 14 Oct 2026 14:03:47 GMT - DEBUG - [oaiq] SDK config telemetry queued {config: automatic_advanced_matching, outcome: enabled}
+Wed, 14 Oct 2026 14:03:49 GMT - DEBUG - [oaiq] queue flushed {reason: scheduler, transport: fetch, eventCount: 2, eventNames: Array(2)}
+Wed, 14 Oct 2026 14:03:49 GMT - ERROR - Failed to load resource: the server responded with a status of 401 ()
+Wed, 14 Oct 2026 14:03:53 GMT - DEBUG - [oaiq] queue flush started {reason: scheduler, transport: fetch, eventCount: 1, eventNames: Array(1)}
+Spinner disappeared.
+Wed, 14 Oct 2026 14:03:54 GMT - DEBUG - [oaiq] queue flushed {reason: scheduler, transport: fetch, eventCount: 1, eventNames: Array(1)}
+Wed, 14 Oct 2026 14:03:58 GMT - ERROR - Failed to load resource: the server responded with a status of 404 ()
+Wed, 14 Oct 2026 14:03:59 GMT - LOG - launchJumpstarterStartPage: waiting for DOM content loaded
+Wed, 14 Oct 2026 14:03:59 GMT - LOG - launchJumpstarterStartPage: waiting for spinner to disappear
+Spinner not found — skipping wait.
+Wed, 14 Oct 2026 14:03:59 GMT - LOG - launchJumpstarterStartPage: verifying Connect Now header button is visible
+Wed, 14 Oct 2026 14:03:59 GMT - LOG - launchJumpstarterStartPage: verifying current URL contains /start
+Wed, 14 Oct 2026 14:03:59 GMT - LOG - navigateToConnectNow: verifying Connect Now header button is visible
+Wed, 14 Oct 2026 14:03:59 GMT - LOG - navigateToConnectNow: clicking Connect Now header button
+Wed, 14 Oct 2026 14:04:00 GMT - DEBUG - [oaiq] lifecycle flush requested {reason: beforeunload, pendingEventCount: 0}
+Wed, 14 Oct 2026 14:04:02 GMT - LOG - navigateToConnectNow: waiting for designers URL
+Wed, 14 Oct 2026 14:04:03 GMT - WARNING - Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+Wed, 14 Oct 2026 14:04:05 GMT - DEBUG - [oaiq] event queued {eventName: openai::sdk_init, eventId: e1970a21-e1d9-4b90-8cb7-c964e998a5eb, pendingEventCount: 1, initialized: true}
+Wed, 14 Oct 2026 14:04:05 GMT - DEBUG - [oaiq] event queued {eventName: oai::diagnostic, eventId: 4a4cf84e-e98a-4e0d-84ad-d9907a6ef708, pendingEventCount: 2, initialized: true}
+Wed, 14 Oct 2026 14:04:05 GMT - DEBUG - [oaiq] SDK config telemetry queued {config: automatic_advanced_matching, outcome: enabled}
+Cookie consent accepted and banner dismissed.
+Wed, 14 Oct 2026 14:04:05 GMT - LOG - navigateToConnectNow: verifying designers URL
+Wed, 14 Oct 2026 14:04:06 GMT - DEBUG - [oaiq] queue flush started {reason: scheduler, transport: fetch, eventCount: 2, eventNames: Array(2)}
+Wed, 14 Oct 2026 14:04:06 GMT - DEBUG - [oaiq] queue flushed {reason: scheduler, transport: fetch, eventCount: 2, eventNames: Array(2)}
+Cookie banner not found — skipping.
+Wed, 14 Oct 2026 14:04:15 GMT - LOG - navigateToConnectNow: waiting for DOM content loaded
+Wed, 14 Oct 2026 14:04:15 GMT - LOG - navigateToConnectNow: waiting for network idle
+Wed, 14 Oct 2026 14:04:15 GMT - LOG - smokeVerifyICabExperience: verifying zip input is visible for 28246
+Wed, 14 Oct 2026 14:04:15 GMT - LOG - smokeVerifyICabExperience: filling zip code 28246
+Wed, 14 Oct 2026 14:04:15 GMT - LOG - smokeVerifyICabExperience: clicking Find my designer
+Wed, 14 Oct 2026 14:04:16 GMT - DEBUG - [oaiq] event queued {eventName: custom, eventId: 0a5b7a89-25b4-412d-b605-9c36a94eb9a8, pendingEventCount: 1, initialized: true}
+Wed, 14 Oct 2026 14:04:16 GMT - LOG - smokeVerifyICabExperience: waiting for designer result URL
+Wed, 14 Oct 2026 14:04:17 GMT - DEBUG - [oaiq] queue flush started {reason: scheduler, transport: fetch, eventCount: 1, eventNames: Array(1)}
+Wed, 14 Oct 2026 14:04:17 GMT - DEBUG - [oaiq] queue flushed {reason: scheduler, transport: fetch, eventCount: 1, eventNames: Array(1)}
+Wed, 14 Oct 2026 14:04:18 GMT - LOG - smokeVerifyICabExperience: waiting for designer page DOM content
+Wed, 14 Oct 2026 14:04:18 GMT - LOG - smokeVerifyICabExperience: verifying main heading
+Wed, 14 Oct 2026 14:04:20 GMT - LOG - smokeVerifyICabExperience: verifying hero sub text
+Wed, 14 Oct 2026 14:04:20 GMT - LOG - smokeVerifyICabExperience: verifying design team content
+Wed, 14 Oct 2026 14:04:21 GMT - LOG - smokeVerifyICabExperience: verifying what you will receive section
+Wed, 14 Oct 2026 14:04:21 GMT - LOG - smokeVerifyICabExperience: verifying received item - A personalized review of your space, goals, and style preferences
+Wed, 14 Oct 2026 14:04:21 GMT - LOG - smokeVerifyICabExperience: verifying received item - Expert guidance on cabinet styles, layouts, and design options
+Wed, 14 Oct 2026 14:04:21 GMT - LOG - smokeVerifyICabExperience: verifying received item - A 3D rendering of your kitchen design
+Wed, 14 Oct 2026 14:04:21 GMT - LOG - smokeVerifyICabExperience: verifying received item - A detailed project quote with transparent pricing
+Wed, 14 Oct 2026 14:04:21 GMT - LOG - smokeVerifyICabExperience: verifying contact panel heading
+Wed, 14 Oct 2026 14:04:21 GMT - LOG - smokeVerifyICabExperience: verifying FAQ section heading
+Wed, 14 Oct 2026 14:04:21 GMT - LOG - smokeVerifyICabExperience: verifying FAQ question - What do I get with my complimentary call?
+Wed, 14 Oct 2026 14:04:22 GMT - LOG - smokeVerifyICabExperience: verifying FAQ question - Do I have to commit to anything after the call?
+Wed, 14 Oct 2026 14:04:22 GMT - LOG - smokeVerifyICabExperience: verifying FAQ question - Is this tailored to my home and budget?
+Wed, 14 Oct 2026 14:04:23 GMT - LOG - smokeVerifyICabExperience: verifying FAQ question - What if I’m unsure about certain colors or materials?
+Wed, 14 Oct 2026 14:04:23 GMT - LOG - smokeVerifyICabExperience: verifying FAQ question - Who handles the construction and installation?
+Wed, 14 Oct 2026 14:04:23 GMT - WARNING - The resource https://home.uat.digitalmbd.net/home/_next/image?url=https%3A%2F%2Fassets-us-01.kc-usercontent.com%3A443%2Fa4f666e6-9c3a-00af-899b-568886c2da59%2F983fb8ad-8e97-448e-8c25-13084aed35f6%2Fcn-designers-hero.jpg&w=640&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+Wed, 14 Oct 2026 14:04:24 GMT - LOG - smokeVerifyICabExperience: verifying first FAQ answer
+Wed, 14 Oct 2026 14:04:24 GMT - LOG - smokeVerifyICabExperience: completed iCab smoke verification
+>>>>>>>>>>>Completed test: Connect Now Smoke - Verify Virtual Designer experience<<<<<<<<<<
+Wed, 14 Oct 2026 14:04:49 GMT - WARNING - Datadog Browser SDK: No storage available for session. We will not send any data.
+Wed, 14 Oct 2026 14:04:50 GMT - WARNING - Datadog Browser SDK: No storage available for session. We will not send any data.
+Wed, 14 Oct 2026 14:05:02 GMT - WARNING - The resource https://home.uat.digitalmbd.net/home/_next/image?url=https%3A%2F%2Fassets-us-01.kc-usercontent.com%3A443%2Fa4f666e6-9c3a-00af-899b-568886c2da59%2F983fb8ad-8e97-448e-8c25-13084aed35f6%2Fcn-designers-hero.jpg&w=640&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+Wed, 14 Oct 2026 14:05:08 GMT - WARNING - The resource https://home.uat.digitalmbd.net/home/_next/image?url=https%3A%2F%2Fassets-us-01.kc-usercontent.com%3A443%2Fa4f666e6-9c3a-00af-899b-568886c2da59%2F983fb8ad-8e97-448e-8c25-13084aed35f6%2Fcn-designers-hero.jpg&w=640&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+Wed, 14 Oct 2026 14:05:10 GMT - DEBUG - [oaiq] lifecycle flush requested {reason: pagehide, pendingEventCount: 0}
+Wed, 14 Oct 2026 14:05:10 GMT - DEBUG - [oaiq] lifecycle flush requested {reason: visibilitychange_hidden, pendingEventCount: 0}
+
+[[ATTACHMENT|ui_tests-SmokePageTests-sm-498d4-xperience-TestCaseId-36490--chromium\video.webm]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

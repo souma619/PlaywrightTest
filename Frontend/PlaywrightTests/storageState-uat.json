@@ -1,0 +1,252 @@
+{
+  "cookies": [
+    {
+      "name": "AuthPasswordType",
+      "value": "straw-serve-pound",
+      "domain": ".digitalmbd.net",
+      "path": "/",
+      "expires": 1818432832,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__cf_bm",
+      "value": "yuliggLvC4VgDdqja0FZxJvKIDdGvLnuOQ6kU9gUUNY-1786905843.896573-1.0.1.1-bkzzW1q09R_JTDKm91ruiZFkIpavuofgeFN_mYCHPlAF0qwMDaIEBKuUIsAzS4GJg6lNqY8xJFV_5MwJlhLBwJVB67G20ODlb67CrColtNx5thhcW58H0nGgSgh0QuJ9",
+      "domain": ".calendly.com",
+      "path": "/",
+      "expires": 1786907643.24405,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "__cf_bm",
+      "value": "nOFRcUzk8lpXmwL6BeYSkPygiooDISKHMApwLyfRdRw-1786905844.4813123-1.0.1.1-L_xhW1rMC9rQ0obkvPogDUquwYGgAWDfiD7zeM1mzV1Tt.j9d0e.cNuqeKDlPX0lYPMbhFFl17PvrR6qGk4LmpTyYuE2d6W2Ij111YJPG6zfqXT0PpjnOlvvfdfpmK.1",
+      "domain": ".bzrcdn.openai.com",
+      "path": "/",
+      "expires": 1786907643.826715,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cfuvid",
+      "value": "l8fYjK9Ci0JU41OW0WbymYVgA4N1l3Cjr1pvCVyEBYc-1786905844.4813123-1.0.1.1-nSqM96fnobW_vYNp9VPTmZ9nLTvr6ogX_hcDQGBnj.I",
+      "domain": ".bzrcdn.openai.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "__cf_bm",
+      "value": "tSUOVaMiuS9fGtP8c1al.N8tsPfxK6d72BHHrMD3Qtg-1786905847.0785174-1.0.1.1-fph2qqIHup2PeCehV.IPgSHrUBhJaszsIrUWVkqR06ykSbsnqtpjdIeivLZIEyDbNyCA1GPuV0vD.lk_8ymi5EaX4H6fVYWVyaB71vOqGu5A7OzliW5n3dHOTwJ3mek8",
+      "domain": ".bzr.openai.com",
+      "path": "/",
+      "expires": 1786907646.65352,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cfuvid",
+      "value": "_Vo1e.BZwuLmc9e7rYpUccuRcIx1s1TKhGWibzeOIpU-1786905847.0785174-1.0.1.1-o_Niz1D_tmN_GcZEzK438bY2YZKhUOYokfHzaZk2lUs",
+      "domain": ".bzr.openai.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_gcl_au",
+      "value": "1.1.1126123432.1786896802",
+      "domain": ".digitalmbd.net",
+      "path": "/",
+      "expires": 1794672802,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__obref",
+      "value": "5fdf851f-3ab2-49a7-95da-16da6559f5e7",
+      "domain": ".digitalmbd.net",
+      "path": "/",
+      "expires": 1818432801.801109,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_rdt_uuid",
+      "value": "1786896802889.9902d2a3-c387-49ff-863b-37f4a5378917",
+      "domain": ".digitalmbd.net",
+      "path": "/",
+      "expires": 1794672833,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "AMP_MKTG_d97542ac34",
+      "value": "JTdCJTdE",
+      "domain": ".digitalmbd.net",
+      "path": "/",
+      "expires": 1818432895,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "refresh",
+      "value": "Y9MItScLJK4mZJE02cHdcd6QqdMMOTxLvp%2Fai0zuQ1S1%2B3y%2Bt%2B5z6Nb2hp%2FfRpJ6bKSWFY1T3DpeWRebpQ45Hg%3D%3D",
+      "domain": ".digitalmbd.net",
+      "path": "/",
+      "expires": 1818441311.704712,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_uetsid",
+      "value": "dbd18170998e11f18a7c5da489a6d1ca",
+      "domain": ".digitalmbd.net",
+      "path": "/",
+      "expires": 1786991713,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_uetvid",
+      "value": "dbd1ede0998e11f18038c74873ad246c",
+      "domain": ".digitalmbd.net",
+      "path": "/",
+      "expires": 1820601313,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "AMP_d97542ac34",
+      "value": "JTdCJTIyZGV2aWNlSWQlMjIlM0ElMjI2ZGRiNzgyNC01NTAxLTQ0MTMtYTdkMS0zMjcxMTYyMTUyZjglMjIlMkMlMjJ1c2VySWQlMjIlM0ElMjIyZDA3NDQ3Ny03MDc1LTRkYWItYmU1Mi1lOGEzOTMwYjg1ZmYlMjIlMkMlMjJzZXNzaW9uSWQlMjIlM0ExNzg2OTAyNDI1ODgzJTJDJTIyb3B0T3V0JTIyJTNBZmFsc2UlMkMlMjJsYXN0RXZlbnRUaW1lJTIyJTNBMTc4NjkwNTkwMzk1MyUyQyUyMmxhc3RFdmVudElkJTIyJTNBMjAlMkMlMjJwYWdlQ291bnRlciUyMiUzQTEwJTJDJTIyY29va2llRG9tYWluJTIyJTNBJTIyLmRpZ2l0YWxtYmQubmV0JTIyJTdE",
+      "domain": ".digitalmbd.net",
+      "path": "/",
+      "expires": 1818441903,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://home.uat.digitalmbd.net",
+      "localStorage": [
+        {
+          "name": "_uetvid_exp",
+          "value": "Fri, 10 Sep 2027 18:35:13 GMT"
+        },
+        {
+          "name": "AMP_SR_START_d97542ac34_1786900893263",
+          "value": "1786900939915"
+        },
+        {
+          "name": "AMP_SR_START_d97542ac34_1786902425883",
+          "value": "1786902469026"
+        },
+        {
+          "name": "_gcl_ls",
+          "value": "{\"schema\":\"gcl\",\"version\":1,\"gsid_dc\":{\"value\":{\"joinId\":\"cyPHJhhLkOptujtSLYj0idF_smZXIg224Q\",\"lastJoinedTimeMs\":1786905903021},\"expires\":1786906203021},\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"errors\":0,\"eopCount\":0,\"creationTimeMs\":1786896889068},\"expires\":1794672889068},\"last_convs\":{\"value\":[],\"expires\":1794681091399}}"
+        },
+        {
+          "name": "AMP_SR_START_d97542ac34_1786901891948",
+          "value": "1786901971320"
+        },
+        {
+          "name": "_uetsid",
+          "value": "dbd18170998e11f18a7c5da489a6d1ca"
+        },
+        {
+          "name": "EXP_unsent_$default_instance",
+          "value": "[]"
+        },
+        {
+          "name": "AMP_SR_START_d97542ac34_1786900536381",
+          "value": "1786900597364"
+        },
+        {
+          "name": "amp-exp-$default_instance-xW2PxW",
+          "value": "{}"
+        },
+        {
+          "name": "AMP_SR_START_d97542ac34_1786896811216",
+          "value": "1786896895710"
+        },
+        {
+          "name": "AMP_remote_config_d97542ac34",
+          "value": "{\"remoteConfig\":{},\"lastFetch\":\"2026-08-16T18:45:03.946Z\"}"
+        },
+        {
+          "name": "_uetsid_exp",
+          "value": "Mon, 17 Aug 2026 18:35:13 GMT"
+        },
+        {
+          "name": "AMP_unsent_d97542ac34",
+          "value": "[{\"user_id\":\"2d074477-7075-4dab-be52-e8a3930b85ff\",\"device_id\":\"6ddb7824-5501-4413-a7d1-3271162152f8\",\"session_id\":1786902425883,\"time\":1786905903943,\"platform\":\"Web\",\"language\":\"en-US\",\"ip\":\"$remote\",\"insert_id\":\"53c64770-e951-4eb1-8e0d-f6c297b341b1\",\"event_type\":\"[Amplitude] Page Viewed\",\"event_properties\":{\"[Amplitude] Page Domain\":\"home.uat.digitalmbd.net\",\"[Amplitude] Page Location\":\"https://home.uat.digitalmbd.net/\",\"[Amplitude] Page Path\":\"/\",\"[Amplitude] Page Title\":\"Kitchen Remodel & Design: Create Your Dream Kitchen | Rebode\",\"[Amplitude] Page URL\":\"https://home.uat.digitalmbd.net/\",\"[Amplitude] Page View ID\":\"2b4be896-b1cf-4776-a8fb-ca5868ad9145\",\"[Amplitude] Page Counter\":10,\"[Amplitude] Previous Page Location\":\"\",\"[Amplitude] Previous Page Type\":\"direct\"},\"event_id\":19,\"library\":\"amplitude-ts-unified/1.1.28-amplitude-ts/2.45.5\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"},{\"user_id\":\"2d074477-7075-4dab-be52-e8a3930b85ff\",\"device_id\":\"6ddb7824-5501-4413-a7d1-3271162152f8\",\"session_id\":1786902425883,\"time\":1786905903953,\"platform\":\"Web\",\"language\":\"en-US\",\"ip\":\"$remote\",\"insert_id\":\"b7a4040c-1841-47a4-9463-d35b5d64c523\",\"event_type\":\"RebodeHomepage-Rendered\",\"event_id\":20,\"library\":\"amplitude-ts-unified/1.1.28-amplitude-ts/2.45.5\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\",\"event_properties\":{\"[Amplitude] Page Domain\":\"home.uat.digitalmbd.net\",\"[Amplitude] Page Location\":\"https://home.uat.digitalmbd.net/\",\"[Amplitude] Page Path\":\"/\",\"[Amplitude] Page Title\":\"Kitchen Remodel & Design: Create Your Dream Kitchen | Rebode\",\"[Amplitude] Page URL\":\"https://home.uat.digitalmbd.net/\",\"[Amplitude] Previous Page Location\":\"\",\"[Amplitude] Previous Page Type\":\"direct\"}}]"
+        },
+        {
+          "name": "_uetvid",
+          "value": "dbd1ede0998e11f18038c74873ad246c"
+        },
+        {
+          "name": "EXP_client-Xrm_DEFAULT_USER_PROVIDER",
+          "value": "{\"first_seen\":\"1786897450.701\"}"
+        },
+        {
+          "name": "AMP_SR_START_d97542ac34_1786897342490",
+          "value": "1786897418635"
+        }
+      ]
+    },
+    {
+      "origin": "https://js.uat.digitalmbd.net",
+      "localStorage": [
+        {
+          "name": "amp-exp-$default_instance-608a5a",
+          "value": "{}"
+        },
+        {
+          "name": "AMP_remote_config_d97542ac34",
+          "value": "{\"remoteConfig\":{},\"lastFetch\":\"2026-08-16T18:44:23.878Z\"}"
+        },
+        {
+          "name": "AMP_unsent_d97542ac34",
+          "value": "[{\"user_id\":\"ca9e37c2-d64e-4381-9de3-1d81cb76dce4\",\"device_id\":\"2b5d1e6a-d447-4969-bfa6-6aa73cb4f89d\",\"session_id\":1786905847177,\"time\":1786905853000,\"platform\":\"Web\",\"language\":\"en-US\",\"ip\":\"$remote\",\"insert_id\":\"1d6dd46e-12c2-4bb4-afc5-3a7635f23d21\",\"event_type\":\"[Amplitude] Viewport Content Updated\",\"event_properties\":{\"[Amplitude] Page URL\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Max Page X\":1920,\"[Amplitude] Max Page Y\":1080,\"[Amplitude] Viewport Height\":1080,\"[Amplitude] Viewport Width\":1920,\"[Amplitude] Element Exposed\":[\"button#onetrust-pc-btn-handler\",\"button#onetrust-reject-all-handler\",\"button#onetrust-accept-btn-handler\",\"div#onetrust-close-btn-container > button\"],\"[Amplitude] Page View ID\":\"060b82a6-944e-45fa-a379-0b7befc4a6bc\",\"[Amplitude] Page Domain\":\"js.uat.digitalmbd.net\",\"[Amplitude] Page Location\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Page Path\":\"/\",\"[Amplitude] Page Title\":\"Jumpstarter by Rebode\",\"[Amplitude] Previous Page Location\":\"https://js.uat.digitalmbd.net/secret/straw-serve-pound.html\",\"[Amplitude] Previous Page Type\":\"internal\"},\"event_id\":2,\"library\":\"amplitude-ts/2.44.4\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"},{\"user_id\":\"ca9e37c2-d64e-4381-9de3-1d81cb76dce4\",\"device_id\":\"2b5d1e6a-d447-4969-bfa6-6aa73cb4f89d\",\"session_id\":1786905847177,\"time\":1786905857743,\"platform\":\"Web\",\"language\":\"en-US\",\"ip\":\"$remote\",\"insert_id\":\"e4f12ad2-5c0e-4623-809f-7e4fc60d2805\",\"event_type\":\"[Amplitude] Viewport Content Updated\",\"event_properties\":{\"[Amplitude] Page URL\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Max Page X\":1920,\"[Amplitude] Max Page Y\":1080,\"[Amplitude] Viewport Height\":1080,\"[Amplitude] Viewport Width\":1920,\"[Amplitude] Element Exposed\":[\"div#root > div > div.sc-eqYatC.eCmPSG.pageContent > header > div.logo > a\",\"div#connectNowIngress > button\",\"div#root > div > div.sc-eqYatC.eCmPSG.pageContent > header > div.actions > button\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(1) > div.footer-module__footerLinks___j-D4b > div:nth-child(1) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(1) > div.footer-module__footerLinks___j-D4b > div:nth-child(2) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(1) > div.footer-module__footerLinks___j-D4b > div:nth-child(3) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(2) > div.footer-module__inspirationContainerDesktop___LHlnu > div > div:nth-child(1) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(2) > div.footer-module__inspirationContainerDesktop___LHlnu > div > div:nth-child(2) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(2) > div.footer-module__inspirationContainerDesktop___LHlnu > div > div:nth-child(3) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(2) > div.footer-module__inspirationContainerDesktop___LHlnu > div > div:nth-child(4) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(3) > div.footer-module__footerLinks___j-D4b > div:nth-child(1) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(3) > div.footer-module__footerLinks___j-D4b > div:nth-child(2) > a\",\"footer#footer > div.footer-module__footerCopyright___WBhom > div.footer-module__footerCopyrightLinkContainer___Ricp3 > div.footer-module__footerCopyrightLinks___PXHpV > div:nth-child(1) > a\",\"footer#footer > div.footer-module__footerCopyright___WBhom > div.footer-module__footerCopyrightLinkContainer___Ricp3 > div.footer-module__footerCopyrightLinks___PXHpV > div:nth-child(2) > a\",\"footer#footer > div.footer-module__footerCopyright___WBhom > div.footer-module__footerCopyrightLinkContainer___Ricp3 > div.footer-module__footerCopyrightLinks___PXHpV > div:nth-child(3) > a\",\"footer#footer > div.footer-module__footerCopyright___WBhom > a\"],\"[Amplitude] Page View ID\":\"060b82a6-944e-45fa-a379-0b7befc4a6bc\",\"[Amplitude] Page Domain\":\"js.uat.digitalmbd.net\",\"[Amplitude] Page Location\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Page Path\":\"/\",\"[Amplitude] Page Title\":\"Jumpstarter by Rebode\",\"[Amplitude] Previous Page Location\":\"https://js.uat.digitalmbd.net/secret/straw-serve-pound.html\",\"[Amplitude] Previous Page Type\":\"internal\"},\"event_id\":3,\"library\":\"amplitude-ts/2.44.4\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"},{\"user_id\":\"ca9e37c2-d64e-4381-9de3-1d81cb76dce4\",\"device_id\":\"2b5d1e6a-d447-4969-bfa6-6aa73cb4f89d\",\"session_id\":1786905847177,\"time\":1786905863824,\"platform\":\"Web\",\"language\":\"en-US\",\"ip\":\"$remote\",\"insert_id\":\"dc9c88ef-3106-442a-92d2-9f28101e5ad1\",\"event_type\":\"[Amplitude] Page Viewed\",\"event_properties\":{\"referrer\":\"https://js.uat.digitalmbd.net/secret/straw-serve-pound.html\",\"referring_domain\":\"js.uat.digitalmbd.net\",\"[Amplitude] Page Domain\":\"js.uat.digitalmbd.net\",\"[Amplitude] Page Location\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Page Path\":\"/\",\"[Amplitude] Page Title\":\"Jumpstarter by Rebode\",\"[Amplitude] Page URL\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Page View ID\":\"e8beb8e7-8656-4bd1-b706-ef99929f0942\",\"[Amplitude] Page Counter\":2,\"[Amplitude] Previous Page Location\":\"https://js.uat.digitalmbd.net/secret/straw-serve-pound.html\",\"[Amplitude] Previous Page Type\":\"internal\"},\"event_id\":4,\"library\":\"amplitude-ts/2.44.4\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"},{\"user_id\":\"ca9e37c2-d64e-4381-9de3-1d81cb76dce4\",\"device_id\":\"2b5d1e6a-d447-4969-bfa6-6aa73cb4f89d\",\"session_id\":1786905847177,\"time\":1786905865153,\"platform\":\"Web\",\"language\":\"en-US\",\"ip\":\"$remote\",\"insert_id\":\"af822e71-1698-4c3f-baff-8d0ef826a1dc\",\"event_type\":\"[Amplitude] Viewport Content Updated\",\"event_properties\":{\"[Amplitude] Page URL\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Max Page X\":1920,\"[Amplitude] Max Page Y\":1080,\"[Amplitude] Viewport Height\":1080,\"[Amplitude] Viewport Width\":1920,\"[Amplitude] Element Exposed\":[\"button#onetrust-pc-btn-handler\",\"button#onetrust-reject-all-handler\",\"button#onetrust-accept-btn-handler\",\"div#onetrust-close-btn-container > button\"],\"[Amplitude] Page View ID\":\"e8beb8e7-8656-4bd1-b706-ef99929f0942\",\"[Amplitude] Page Domain\":\"js.uat.digitalmbd.net\",\"[Amplitude] Page Location\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Page Path\":\"/\",\"[Amplitude] Page Title\":\"Jumpstarter by Rebode\",\"[Amplitude] Previous Page Location\":\"https://js.uat.digitalmbd.net/secret/straw-serve-pound.html\",\"[Amplitude] Previous Page Type\":\"internal\"},\"event_id\":5,\"library\":\"amplitude-ts/2.44.4\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"},{\"user_id\":\"ca9e37c2-d64e-4381-9de3-1d81cb76dce4\",\"device_id\":\"2b5d1e6a-d447-4969-bfa6-6aa73cb4f89d\",\"session_id\":1786905847177,\"time\":1786905865462,\"platform\":\"Web\",\"language\":\"en-US\",\"ip\":\"$remote\",\"insert_id\":\"b072b8e9-fd24-40af-8a5b-d2f2d7fa9edf\",\"event_type\":\"[Amplitude] Viewport Content Updated\",\"event_properties\":{\"[Amplitude] Page URL\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Max Page X\":1920,\"[Amplitude] Max Page Y\":1080,\"[Amplitude] Viewport Height\":1080,\"[Amplitude] Viewport Width\":1920,\"[Amplitude] Element Exposed\":[\"div#root > div > div.sc-eqYatC.eCmPSG.pageContent > header > div.logo > a\",\"div#connectNowIngress > button\",\"div#root > div > div.sc-eqYatC.eCmPSG.pageContent > header > div.actions > button\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(1) > div.footer-module__footerLinks___j-D4b > div:nth-child(1) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(1) > div.footer-module__footerLinks___j-D4b > div:nth-child(2) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(1) > div.footer-module__footerLinks___j-D4b > div:nth-child(3) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(2) > div.footer-module__inspirationContainerDesktop___LHlnu > div > div:nth-child(1) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(2) > div.footer-module__inspirationContainerDesktop___LHlnu > div > div:nth-child(2) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(2) > div.footer-module__inspirationContainerDesktop___LHlnu > div > div:nth-child(3) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(2) > div.footer-module__inspirationContainerDesktop___LHlnu > div > div:nth-child(4) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(3) > div.footer-module__footerLinks___j-D4b > div:nth-child(1) > a\",\"footer#footer > div.footer-module__footerContainer___1z8R3 > div > div.footer-module__footerSubContainer___5bqNO > div:nth-child(3) > div.footer-module__footerLinks___j-D4b > div:nth-child(2) > a\",\"footer#footer > div.footer-module__footerCopyright___WBhom > div.footer-module__footerCopyrightLinkContainer___Ricp3 > div.footer-module__footerCopyrightLinks___PXHpV > div:nth-child(1) > a\",\"footer#footer > div.footer-module__footerCopyright___WBhom > div.footer-module__footerCopyrightLinkContainer___Ricp3 > div.footer-module__footerCopyrightLinks___PXHpV > div:nth-child(2) > a\",\"footer#footer > div.footer-module__footerCopyright___WBhom > div.footer-module__footerCopyrightLinkContainer___Ricp3 > div.footer-module__footerCopyrightLinks___PXHpV > div:nth-child(3) > a\",\"footer#footer > div.footer-module__footerCopyright___WBhom > a\"],\"[Amplitude] Page View ID\":\"e8beb8e7-8656-4bd1-b706-ef99929f0942\",\"[Amplitude] Page Domain\":\"js.uat.digitalmbd.net\",\"[Amplitude] Page Location\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Page Path\":\"/\",\"[Amplitude] Page Title\":\"Jumpstarter by Rebode\",\"[Amplitude] Previous Page Location\":\"https://js.uat.digitalmbd.net/secret/straw-serve-pound.html\",\"[Amplitude] Previous Page Type\":\"internal\"},\"event_id\":6,\"library\":\"amplitude-ts/2.44.4\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"},{\"user_id\":\"ca9e37c2-d64e-4381-9de3-1d81cb76dce4\",\"device_id\":\"2b5d1e6a-d447-4969-bfa6-6aa73cb4f89d\",\"session_id\":1786905847177,\"time\":1786905865469,\"platform\":\"Web\",\"language\":\"en-US\",\"ip\":\"$remote\",\"insert_id\":\"29cbcbcf-f31b-438a-898c-7cd62139ad01\",\"event_type\":\"[Amplitude] Element Clicked\",\"event_properties\":{\"[Amplitude] Element Hierarchy\":[{\"tag\":\"div\",\"index\":0,\"indexOfType\":0,\"classes\":[\"label\"]},{\"tag\":\"div\",\"index\":0,\"indexOfType\":0,\"classes\":[\"complete\",\"step-inner\",\"center-justify\"]},{\"tag\":\"div\",\"index\":0,\"indexOfType\":0,\"classes\":[\"sc-kNOymR\",\"gnlNnL\"]},{\"tag\":\"div\",\"index\":0,\"indexOfType\":0,\"classes\":[\"step-container\",\"complete\"]},{\"tag\":\"div\",\"index\":0,\"indexOfType\":0,\"classes\":[\"steps\"]},{\"tag\":\"div\",\"index\":0,\"indexOfType\":0,\"classes\":[\"stepper\"]},{\"tag\":\"div\",\"index\":0,\"indexOfType\":0,\"classes\":[\"sc-hwkwBN\",\"cbMmjs\"]},{\"tag\":\"div\",\"index\":1,\"indexOfType\":1,\"prevSib\":\"div\",\"classes\":[\"stepper\"]},{\"tag\":\"header\",\"index\":0,\"indexOfType\":0,\"classes\":[\"sc-kcLKEh\",\"kCeGXQ\"]},{\"tag\":\"div\",\"index\":0,\"indexOfType\":0,\"classes\":[\"sc-eqYatC\",\"eCmPSG\",\"pageContent\"]},{\"tag\":\"div\",\"index\":0,\"indexOfType\":0,\"classes\":[\"mbt_page\"]},{\"tag\":\"div\",\"index\":1,\"indexOfType\":0,\"prevSib\":\"noscript\",\"id\":\"root\"},{\"tag\":\"body\",\"index\":1,\"indexOfType\":0,\"prevSib\":\"head\",\"classes\":[\"chakra-ui-light\"]}],\"[Amplitude] Element Tag\":\"div\",\"[Amplitude] Element Text\":\"Start\",\"[Amplitude] Element Position Left\":633,\"[Amplitude] Element Position Top\":53,\"[Amplitude] Element Path\":\"div#root > div > div.sc-eqYatC.eCmPSG.pageContent > header > div.stepper > div > div > div > div.step-container.complete > div > div > div\",\"[Amplitude] Page URL\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Page Title\":\"Jumpstarter by Rebode\",\"[Amplitude] Viewport Height\":1080,\"[Amplitude] Viewport Width\":1920,\"[Amplitude] Page View ID\":\"e8beb8e7-8656-4bd1-b706-ef99929f0942\",\"[Amplitude] Element Class\":\"label\",\"[Amplitude] Page Domain\":\"js.uat.digitalmbd.net\",\"[Amplitude] Page Location\":\"https://js.uat.digitalmbd.net/\",\"[Amplitude] Page Path\":\"/\",\"[Amplitude] Previous Page Location\":\"https://js.uat.digitalmbd.net/secret/straw-serve-pound.html\",\"[Amplitude] Previous Page Type\":\"internal\"},\"event_id\":7,\"library\":\"amplitude-ts/2.44.4\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"}]"
+        },
+        {
+          "name": "_gcl_ls",
+          "value": "{\"schema\":\"gcl\",\"version\":1,\"gsid_dc\":{\"value\":{\"joinId\":\"vFjpQR2IZ21KNRSY6FiAk82ec4A5GpevyA\",\"lastJoinedTimeMs\":1786905843650},\"expires\":1786906143650},\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"errors\":0,\"eopCount\":0,\"creationTimeMs\":1786905843657},\"expires\":1794681843657}}"
+        },
+        {
+          "name": "chakra-ui-color-mode",
+          "value": "light"
+        },
+        {
+          "name": "EXP_d97542ac34_DEFAULT_USER_PROVIDER",
+          "value": "{\"first_seen\":\"1786905852.957\"}"
+        },
+        {
+          "name": "AMP_SR_START_d97542ac34_1786905847177",
+          "value": "1786905847179"
+        },
+        {
+          "name": "loglevel",
+          "value": "ERROR"
+        }
+      ]
+    }
+  ]
+}
